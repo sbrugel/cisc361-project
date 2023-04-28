@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <sstream>
 
 int main() {
     // system properties
@@ -20,6 +21,14 @@ int main() {
         {
             // TODO: process input instead of printing
             std::cout << line << std::endl;
+
+            // the following code splits the current line at the space (' ') character
+            const std::string& input = line;
+            std::istringstream  iss(input);
+            std::string token;
+            while (iss >> token) {
+                std::cout << token << std::endl;
+            }
         }
         infile.close();
     }
@@ -28,6 +37,6 @@ int main() {
         std::cout << "Unable to open file." << std::endl;
         return 0;
     }
-    
+
     return 0;
 }
