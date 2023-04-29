@@ -11,6 +11,10 @@ list(
 
         # Put files you want to build (.h, .cpp) in this list using this format
         # No semicolons, just newlines
+
+        ${CMAKE_CURRENT_LIST_DIR}/src/utility/String.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/utility/String.h
+
         ${CMAKE_CURRENT_LIST_DIR}/src/main.cpp
 )
 
