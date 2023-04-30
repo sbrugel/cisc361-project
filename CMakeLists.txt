@@ -5,18 +5,22 @@ set(CMAKE_CXX_STANDARD 20)
 # Compile with PIC
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# Add files
-list(
-        APPEND ${PROJECT_NAME}_SOURCES
-
+# Make executable
+add_executable(${PROJECT_NAME}
         # Put files you want to build (.h, .cpp) in this list using this format
         # No semicolons, just newlines
 
         ${CMAKE_CURRENT_LIST_DIR}/src/utility/String.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/utility/String.h
 
-        ${CMAKE_CURRENT_LIST_DIR}/src/main.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/Commands.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/Commands.h
+        ${CMAKE_CURRENT_LIST_DIR}/src/Job.h
+
+        ${CMAKE_CURRENT_LIST_DIR}/src/Main.cpp
 )
 
-# Make executable
-add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_SOURCES} src/Job.h)
+# Copy necessary files
+add_custom_target(${PROJECT_NAME}-Copy-Resources
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/inputs ${CMAKE_BINARY_DIR}/inputs)
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}-Copy-Resources)

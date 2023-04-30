@@ -1,9 +1,10 @@
 #pragma once
 
 struct Job {
+    int id;
+    int priority;
     int arrivalTime;
-    int requiredMemory;
-    int maximumDevices;
     int runningTime;
-    int priority; // can be 1 or 2
+    int memoryRequired;
+    int devicesRequired;
 };
