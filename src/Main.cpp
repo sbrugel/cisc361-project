@@ -32,28 +32,27 @@ int main() {
 
         // Let's see what command it is!
         switch (command.type) {
-            using enum CommandType;
-            case SYSTEM: {
+            case CommandType::SYSTEM: {
                 auto info = std::get<CommandSystemInfo>(command.info);
                 // todo: do stuff with system command
                 break;
             }
-            case NEW_JOB: {
+            case CommandType::NEW_JOB: {
                 auto info = std::get<CommandNewJobInfo>(command.info);
                 // todo: do stuff with new job command
                 break;
             }
-            case DEVICE_REQUEST: {
+            case CommandType::DEVICE_REQUEST: {
                 auto info = std::get<CommandDeviceRequestInfo>(command.info);
                 // todo: do stuff with device request command
                 break;
             }
-            case DEVICE_RELEASE: {
+            case CommandType::DEVICE_RELEASE: {
                 auto info = std::get<CommandDeviceReleaseInfo>(command.info);
                 // todo: do stuff with device release command
                 break;
             }
-            case DISPLAY: {
+            case CommandType::DISPLAY: {
                 auto info = std::get<CommandDisplayInfo>(command.info);
                 // todo: do stuff with display command
                 break;

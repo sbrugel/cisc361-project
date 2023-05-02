@@ -1,44 +1,42 @@
 #include "Commands.h"
 
-#include <format>
 #include "utility/String.h"
 
 CommandType charToCommandType(char c) {
     switch (c) {
-        using enum CommandType;
         case 'C':
-            return SYSTEM;
+            return CommandType::SYSTEM;
         case 'A':
-            return NEW_JOB;
+            return CommandType::NEW_JOB;
         case 'Q':
-            return DEVICE_REQUEST;
+            return CommandType::DEVICE_REQUEST;
         case 'L':
-            return DEVICE_RELEASE;
+            return CommandType::DEVICE_RELEASE;
         case 'D':
-            return DISPLAY;
+            return CommandType::DISPLAY;
         default:
-            return INVALID;
+            return CommandType::INVALID;
     }
 }
 
 CommandSystemInfo::operator std::string() const {
-    return std::format("System{{ startTime={}, memoryAmount={}, deviceAmount={}, quantum={} }}", this->startTime, this->memoryAmount, this->deviceAmount, this->quantum);
+    return string::format("System{ startTime=%d, memoryAmount=%d, deviceAmount=%d, quantum=%d }", this->startTime, this->memoryAmount, this->deviceAmount, this->quantum);
 }
 
 CommandNewJobInfo::operator std::string() const {
-    return std::format("NewJob{{ arrivalTime={}, jobID={}, memoryRequired={}, devicesRequired={}, executionTimeLength={}, priority={} }}", this->arrivalTime, this->jobID, this->memoryRequired, this->devicesRequired, this->executionTimeLength, this->priority);
+    return string::format("NewJob{ arrivalTime=%d, jobID=%d, memoryRequired=%d, devicesRequired=%d, executionTimeLength=%d, priority=%d }", this->arrivalTime, this->jobID, this->memoryRequired, this->devicesRequired, this->executionTimeLength, this->priority);
 }
 
 CommandDeviceRequestInfo::operator std::string() const {
-    return std::format("DeviceRequest{{ arrivalTime={}, jobID={}, devicesRequested={} }}", this->arrivalTime, this->jobID, this->devicesRequested);
+    return string::format("DeviceRequest{ arrivalTime=%d, jobID=%d, devicesRequested=%d }", this->arrivalTime, this->jobID, this->devicesRequested);
 }
 
 CommandDeviceReleaseInfo::operator std::string() const {
-    return std::format("DeviceRelease{{ arrivalTime={}, jobID={}, devicesReleased={} }}", this->arrivalTime, this->jobID, this->devicesReleased);
+    return string::format("DeviceRelease{ arrivalTime=%d, jobID=%d, devicesReleased=%d }", this->arrivalTime, this->jobID, this->devicesReleased);
 }
 
 CommandDisplayInfo::operator std::string() const {
-    return std::format("Display{{ arrivalTime={} }}", this->arrivalTime);
+    return string::format("Display{ arrivalTime=%d }", this->arrivalTime);
 }
 
 CommandInvalid::operator std::string() const {
@@ -47,16 +45,15 @@ CommandInvalid::operator std::string() const {
 
 CommandInfo::operator std::string() const {
     switch (this->type) {
-        using enum CommandType;
-        case SYSTEM:
+        case CommandType::SYSTEM:
             return std::string{std::get<CommandSystemInfo>(this->info)};
-        case NEW_JOB:
+        case CommandType::NEW_JOB:
             return std::string{std::get<CommandNewJobInfo>(this->info)};
-        case DEVICE_REQUEST:
+        case CommandType::DEVICE_REQUEST:
             return std::string{std::get<CommandDeviceRequestInfo>(this->info)};
-        case DEVICE_RELEASE:
+        case CommandType::DEVICE_RELEASE:
             return std::string{std::get<CommandDeviceReleaseInfo>(this->info)};
-        case DISPLAY:
+        case CommandType::DISPLAY:
             return std::string{std::get<CommandDisplayInfo>(this->info)};
         default:
             return std::string{std::get<CommandInvalid>(this->info)};
@@ -75,18 +72,17 @@ CommandDisplayInfo parseDisplayCommand(std::string_view line);
 
 CommandInfo parseCommand(std::string_view line) {
     switch (charToCommandType(line[0])) {
-        using enum CommandType;
-        case SYSTEM:
-            return {SYSTEM, parseSystemCommand(line)};
-        case NEW_JOB:
-            return {NEW_JOB, parseNewJobCommand(line)};
-        case DEVICE_REQUEST:
-            return {DEVICE_REQUEST, parseDeviceRequestCommand(line)};
-        case DEVICE_RELEASE:
-            return {DEVICE_RELEASE, parseDeviceReleaseCommand(line)};
-        case DISPLAY:
-            return {DISPLAY, parseDisplayCommand(line)};
-        case INVALID:
+        case CommandType::SYSTEM:
+            return {CommandType::SYSTEM, parseSystemCommand(line)};
+        case CommandType::NEW_JOB:
+            return {CommandType::NEW_JOB, parseNewJobCommand(line)};
+        case CommandType::DEVICE_REQUEST:
+            return {CommandType::DEVICE_REQUEST, parseDeviceRequestCommand(line)};
+        case CommandType::DEVICE_RELEASE:
+            return {CommandType::DEVICE_RELEASE, parseDeviceReleaseCommand(line)};
+        case CommandType::DISPLAY:
+            return {CommandType::DISPLAY, parseDisplayCommand(line)};
+        case CommandType::INVALID:
             return {};
     }
     return {};
