@@ -4,6 +4,8 @@
 
 #include "Commands.h"
 #include "Job.h"
+#include "HoldQueueSJF.h"
+#include "HoldQueueFIFO.h"
 
 struct System {
     int time;
@@ -16,6 +18,8 @@ struct System {
 
 int main() {
     System system{};
+    HoldQueueSJF hq1;
+    HoldQueueFIFO hq2;
 
     // reading the input to get all properties
     std::ifstream infile("../inputs/i0.txt");
@@ -46,12 +50,16 @@ int main() {
             case CommandType::NEW_JOB: {
                 auto info = std::get<CommandNewJobInfo>(command.info);
                 // todo: do stuff with new job command
-                Job j{info.jobID, info.priority, info.arrivalTime, info.executionTimeLength, info.memoryRequired, info.devicesRequired};
+                Job j{info.jobID, info.priority, info.arrivalTime, info.executionTimeLength, info.memoryRequired, info.devicesRequired, 0};
 
                 if (j.priority == 1) {
                     // put in SJF
+                    hq1.enqueue(j);
+                    hq1.printQueue();
                 } else {
                     // put in FIFO
+                    hq2.enqueue(j);
+                    hq2.printQueue();
                 }
                 break;
             }
