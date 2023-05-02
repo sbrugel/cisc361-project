@@ -18,7 +18,7 @@ add_executable(${PROJECT_NAME}
         ${CMAKE_CURRENT_LIST_DIR}/src/Job.h
 
         ${CMAKE_CURRENT_LIST_DIR}/src/Main.cpp
-)
+        src/HoldQueueSJF.cpp src/HoldQueueSJF.h src/HoldQueueFIFO.cpp src/HoldQueueFIFO.h)
 
 # Copy necessary files
 add_custom_target(${PROJECT_NAME}-Copy-Resources

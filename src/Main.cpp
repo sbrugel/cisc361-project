@@ -3,6 +3,7 @@
 #include <string>
 
 #include "Commands.h"
+#include "Job.h"
 
 struct System {
     int time;
@@ -34,12 +35,24 @@ int main() {
         switch (command.type) {
             case CommandType::SYSTEM: {
                 auto info = std::get<CommandSystemInfo>(command.info);
-                // todo: do stuff with system command
+                system.time = info.startTime;
+                system.totalMemory = info.memoryAmount;
+                system.availableMemory = system.totalMemory;
+                system.totalDevices = info.deviceAmount;
+                system.availableDevices = system.totalDevices;
+                system.quantum = info.quantum;
                 break;
             }
             case CommandType::NEW_JOB: {
                 auto info = std::get<CommandNewJobInfo>(command.info);
                 // todo: do stuff with new job command
+                Job j{info.jobID, info.priority, info.arrivalTime, info.executionTimeLength, info.memoryRequired, info.devicesRequired};
+
+                if (j.priority == 1) {
+                    // put in SJF
+                } else {
+                    // put in FIFO
+                }
                 break;
             }
             case CommandType::DEVICE_REQUEST: {

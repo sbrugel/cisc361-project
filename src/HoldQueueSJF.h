@@ -1,0 +1,14 @@
+//
+// Created by Simon on 5/2/2023.
+//
+
+#ifndef CISC361_TERM_PROJECT_HOLDQUEUESJF_H
+#define CISC361_TERM_PROJECT_HOLDQUEUESJF_H
+
+
+class HoldQueueSJF {
+
+};
+
+
+#endif //CISC361_TERM_PROJECT_HOLDQUEUESJF_H
