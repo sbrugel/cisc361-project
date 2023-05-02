@@ -10,7 +10,10 @@ void HoldQueueFIFO::enqueue(Job j) {
 
 void HoldQueueFIFO::printQueue() {
     std::list<Job>::iterator it;
+    std::cout << "Printing contents of FIFO" << std::endl;
     for (it = queue.begin(); it != queue.end(); ++it) {
-        std::cout << *it << std::endl;
+        std::cout << *it;
     }
 }
+
+// todo: implement sort

@@ -14,4 +14,5 @@ class HoldQueueSJF {
 public:
     void enqueue(Job j);
     void printQueue();
+    // todo: implement sort
 };

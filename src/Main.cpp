@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 
 #include "Commands.h"
 #include "Job.h"
@@ -8,7 +9,7 @@
 #include "HoldQueueFIFO.h"
 
 struct System {
-    int time;
+    int time; // the current time; gets incremented
     int totalMemory;
     int availableMemory;
     int totalDevices;
@@ -18,6 +19,9 @@ struct System {
 
 int main() {
     System system{};
+
+    std::vector<Job> jobs;
+
     HoldQueueSJF hq1;
     HoldQueueFIFO hq2;
 
@@ -39,28 +43,23 @@ int main() {
         switch (command.type) {
             case CommandType::SYSTEM: {
                 auto info = std::get<CommandSystemInfo>(command.info);
+
                 system.time = info.startTime;
                 system.totalMemory = info.memoryAmount;
                 system.availableMemory = system.totalMemory;
                 system.totalDevices = info.deviceAmount;
                 system.availableDevices = system.totalDevices;
                 system.quantum = info.quantum;
+
                 break;
             }
             case CommandType::NEW_JOB: {
                 auto info = std::get<CommandNewJobInfo>(command.info);
-                // todo: do stuff with new job command
-                Job j{info.jobID, info.priority, info.arrivalTime, info.executionTimeLength, info.memoryRequired, info.devicesRequired, 0};
 
-                if (j.priority == 1) {
-                    // put in SJF
-                    hq1.enqueue(j);
-                    hq1.printQueue();
-                } else {
-                    // put in FIFO
-                    hq2.enqueue(j);
-                    hq2.printQueue();
-                }
+                Job j{info.jobID, info.priority, info.arrivalTime, info.executionTimeLength, info.memoryRequired, info.devicesRequired, 0};
+                if (j.memoryRequired > system.totalMemory || j.devicesRequired > system.totalDevices) break; // too much needed
+                jobs.push_back(j); // add the job to the list of all system jobs
+
                 break;
             }
             case CommandType::DEVICE_REQUEST: {
@@ -82,6 +81,30 @@ int main() {
                 std::cout << "Broken line: \"" << line << '\"' << std::endl;
                 return 0;
         }
+    }
+
+    const int MAX_TIME = 50; // temporary but we still need a maximum time of some sort
+    std::vector<Job>::iterator jobIter;
+    while (system.time < MAX_TIME) {
+        std::cout << "the current system time is " << system.time << std::endl;
+
+        for (jobIter = jobs.begin(); jobIter != jobs.end(); ++jobIter) {
+            if (jobIter->arrivalTime == system.time) {
+                std::cout << "oh dang!!!! a new job has arrived at time " << system.time << "!!! its Id is "
+                          << jobIter->id << std::endl;
+                if (jobIter->priority == 1) {
+                    // put in SJF
+                    hq1.enqueue(*jobIter);
+                    hq1.printQueue();
+                } else {
+                    // put in FIFO
+                    hq2.enqueue(*jobIter);
+                    hq2.printQueue();
+                }
+            }
+        }
+
+        system.time++;
     }
 
     infile.close();
