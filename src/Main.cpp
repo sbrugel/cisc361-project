@@ -5,8 +5,7 @@
 
 #include "Commands.h"
 #include "Job.h"
-#include "HoldQueueSJF.h"
-#include "HoldQueueFIFO.h"
+#include "HoldQueue.h"
 
 struct System {
     int time; // the current time; gets incremented
@@ -22,8 +21,8 @@ int main() {
 
     std::vector<Job> jobs;
 
-    HoldQueueSJF hq1;
-    HoldQueueFIFO hq2;
+    HoldQueue hq1{true}; // SJF
+    HoldQueue hq2{false}; // FIFO
 
     // reading the input to get all properties
     std::ifstream infile("../inputs/i0.txt");
@@ -31,6 +30,10 @@ int main() {
         std::cout << "Unable to open file." << std::endl;
         return 0;
     }
+
+    // todo: The program must not read the entire input file in the beginning of the program to pre-
+    //process or use any advanced information. Execution is line by line and your program’s
+    //operations should not, for example, use future information about device requests
 
     std::string line;
     while (std::getline(infile, line)) {
@@ -106,7 +109,6 @@ int main() {
 
         system.time++;
     }
-
     infile.close();
     return 0;
 }

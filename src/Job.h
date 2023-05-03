@@ -12,7 +12,7 @@ struct Job {
     int currentTime;
 
     friend std::ostream& operator<<(std::ostream& os, const Job& j) { //tostring
-        os << "This job has ID " << j.id << std::endl;
+        os << "This job has ID " << j.id << " Arrival Time " << j.arrivalTime << " Run Time " << j.runningTime << std::endl;
         return os;
     }
 };
