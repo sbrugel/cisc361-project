@@ -31,10 +31,6 @@ int main() {
         return 0;
     }
 
-    // todo: The program must not read the entire input file in the beginning of the program to pre-
-    //process or use any advanced information. Execution is line by line and your program’s
-    //operations should not, for example, use future information about device requests
-
     std::string line;
     while (std::getline(infile, line)) {
         CommandInfo command = parseCommand(line);
@@ -95,14 +91,18 @@ int main() {
             if (jobIter->arrivalTime == system.time) {
                 std::cout << "oh dang!!!! a new job has arrived at time " << system.time << "!!! its Id is "
                           << jobIter->id << std::endl;
-                if (jobIter->priority == 1) {
-                    // put in SJF
-                    hq1.enqueue(*jobIter);
-                    hq1.printQueue();
+                if (system.availableMemory >= jobIter->memoryRequired) {
+                    std::cout << "going to ready queue" << std::endl;
                 } else {
-                    // put in FIFO
-                    hq2.enqueue(*jobIter);
-                    hq2.printQueue();
+                    if (jobIter->priority == 1) {
+                        // put in SJF
+                        hq1.enqueue(*jobIter);
+                        hq1.printQueue();
+                    } else {
+                        // put in FIFO
+                        hq2.enqueue(*jobIter);
+                        hq2.printQueue();
+                    }
                 }
             }
         }

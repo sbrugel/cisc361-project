@@ -31,7 +31,8 @@ void HoldQueue::printQueue() {
 }
 
 bool HoldQueue::compareJobsSJF(Job a, Job b) {
-    return a.runningTime < b.runningTime; // sort by ascending order of running time
+    if (a.runningTime == b.runningTime) return a.arrivalTime < b.arrivalTime; // tie breaker
+    else return a.runningTime < b.runningTime; // sort by ascending order of running time
 }
 
 bool HoldQueue::compareJobsFIFO(Job a, Job b) {
