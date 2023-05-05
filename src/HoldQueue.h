@@ -19,5 +19,6 @@ public:
     explicit HoldQueue(bool isPriority1);
     void enqueue(Job j);
     void printQueue();
+    void clearQueue();
     void sortJobs();
 };

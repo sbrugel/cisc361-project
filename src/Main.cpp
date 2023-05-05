@@ -43,6 +43,12 @@ int main() {
             case CommandType::SYSTEM: {
                 auto info = std::get<CommandSystemInfo>(command.info);
 
+                // clear previous information
+                jobs.clear();
+                hq1.clearQueue();
+                hq2.clearQueue();
+
+                // setup system
                 system.time = info.startTime;
                 system.totalMemory = info.memoryAmount;
                 system.availableMemory = system.totalMemory;

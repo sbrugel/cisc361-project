@@ -59,3 +59,7 @@ void HoldQueue::sortJobs() {
         queue.push_back(vectorJob);
     }
 }
+
+void HoldQueue::clearQueue() {
+    queue.clear();
+}
