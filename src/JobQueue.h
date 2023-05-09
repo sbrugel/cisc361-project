@@ -25,7 +25,7 @@ public:
     [[nodiscard]] int getTotalMemoryRequired() const;
     [[nodiscard]] int getTotalDevicesRequired() const;
 
-    [[nodiscard]] Job pop();
+    Job pop();
     [[nodiscard]] Job peek();
     void push(Job job);
     void clear();
