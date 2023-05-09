@@ -37,5 +37,5 @@ protected:
 
     std::list<Job> queue;
     JobQueueSortType sortType;
-    std::string_view name;
+    std::string name;
 };

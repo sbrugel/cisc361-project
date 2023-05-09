@@ -2,7 +2,7 @@
 
 JobQueue::JobQueue(JobQueueSortType jobQueueSortType, std::string_view name_)
         : sortType(jobQueueSortType)
-        , name(name_) {}
+        , name(name_.data()) {}
 
 [[nodiscard]] int JobQueue::getTotalMemoryRequired() const {
     int mem = 0;
@@ -42,16 +42,16 @@ void JobQueue::clear() {
 }
 
 JobQueue::operator std::string() const {
-    std::string out = this->name.data();
+    std::string out = this->name;
     switch (this->sortType) {
         case JobQueueSortType::FIFO:
-            out = " (FIFO)";
+            out += " (FIFO)";
             break;
         case JobQueueSortType::SJF:
-            out = " (SJF)";
+            out += " (SJF)";
             break;
         case JobQueueSortType::RR:
-            out = " (RR)";
+            out += " (RR)";
             break;
     }
     out += ": {\n";
