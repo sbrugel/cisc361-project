@@ -19,8 +19,6 @@ struct System {
 int main() {
     System system{};
 
-    std::vector<Job> jobs;
-
     HoldQueue hq1{true}; // SJF
     HoldQueue hq2{false}; // FIFO
 
@@ -44,7 +42,6 @@ int main() {
                 auto info = std::get<CommandSystemInfo>(command.info);
 
                 // clear previous information
-                jobs.clear();
                 hq1.clearQueue();
                 hq2.clearQueue();
 
@@ -63,7 +60,22 @@ int main() {
 
                 Job j{info.jobID, info.priority, info.arrivalTime, info.executionTimeLength, info.memoryRequired, info.devicesRequired, 0};
                 if (j.memoryRequired > system.totalMemory || j.devicesRequired > system.totalDevices) break; // too much needed
-                jobs.push_back(j); // add the job to the list of all system jobs
+
+                std::cout << "oh dang!!!! a new job has arrived at time " << system.time << "!!! its Id is "
+                          << j.id << std::endl;
+                if (system.availableMemory >= j.memoryRequired) {
+                    std::cout << "going to ready queue" << std::endl;
+                } else {
+                    if (j.priority == 1) {
+                        // put in SJF
+                        hq1.enqueue(j);
+                        std::cout << std::string{hq1};
+                    } else {
+                        // put in FIFO
+                        hq2.enqueue(j);
+                        std::cout << std::string{hq2};
+                    }
+                }
 
                 break;
             }
@@ -88,32 +100,6 @@ int main() {
         }
     }
 
-    constexpr int MAX_TIME = 50; // temporary but we still need a maximum time of some sort
-    while (system.time < MAX_TIME) {
-        std::cout << "the current system time is " << system.time << std::endl;
-
-        for (auto jobIter = jobs.begin(); jobIter != jobs.end(); ++jobIter) {
-            if (jobIter->arrivalTime == system.time) {
-                std::cout << "oh dang!!!! a new job has arrived at time " << system.time << "!!! its Id is "
-                          << jobIter->id << std::endl;
-                if (system.availableMemory >= jobIter->memoryRequired) {
-                    std::cout << "going to ready queue" << std::endl;
-                } else {
-                    if (jobIter->priority == 1) {
-                        // put in SJF
-                        hq1.enqueue(*jobIter);
-                        std::cout << std::string{hq1};
-                    } else {
-                        // put in FIFO
-                        hq2.enqueue(*jobIter);
-                        std::cout << std::string{hq2};
-                    }
-                }
-            }
-        }
-
-        system.time++;
-    }
     infile.close();
     return 0;
 }
