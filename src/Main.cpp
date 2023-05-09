@@ -1,12 +1,10 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <vector>
 
 #include "Commands.h"
 #include "Job.h"
-#include "HoldQueue.h"
-#include "ProcessQueue.h"
+#include "JobQueue.h"
 
 struct System {
     int time; // the current time; gets incremented
@@ -20,11 +18,11 @@ struct System {
 int main() {
     System system{};
 
-    HoldQueue hq1{true}; // SJF
-    HoldQueue hq2{false}; // FIFO
+    JobQueue hq1{JobQueueSortType::SJF, "Hold Queue 1"};
+    JobQueue hq2{JobQueueSortType::FIFO, "Hold Queue 2"};
 
-    ProcessQueue readyQueue{"Ready Queue"}; //
-    ProcessQueue waitQueue{"Wait Queue"};
+    JobQueue readyQueue{JobQueueSortType::RR, "Ready Queue"}; //
+    JobQueue waitQueue{JobQueueSortType::RR, "Wait Queue"};
 
     // reading the input to get all properties
     std::ifstream infile("../inputs/i2.txt");
@@ -46,8 +44,8 @@ int main() {
                 auto info = std::get<CommandSystemInfo>(command.info);
 
                 // clear previous information
-                hq1.clearQueue();
-                hq2.clearQueue();
+                hq1.clear();
+                hq2.clear();
 
                 // setup system
                 system.time = info.startTime;
@@ -69,18 +67,18 @@ int main() {
                           << j.id << " and has required memory of " << j.memoryRequired << std::endl;
                 if (system.availableMemory >= j.memoryRequired) {
                     std::cout << "adding it to the ready queue" << std::endl;
-                    readyQueue.enqueue(j);
-                    system.availableMemory = system.totalMemory - readyQueue.getMemory();
+                    readyQueue.push(j);
+                    system.availableMemory = system.totalMemory - readyQueue.getTotalMemoryRequired();
                     std::cout << "memory available: " << system.availableMemory << " / " << system.totalMemory << std::endl;
                 } else {
                     if (j.priority == 1) {
                         // put in SJF
                         std::cout << "adding it to the hold queue 1" << std::endl;
-                        hq1.enqueue(j);
+                        hq1.push(j);
                     } else {
                         // put in FIFO
                         std::cout << "adding it to the hold queue 2" << std::endl;
-                        hq2.enqueue(j);
+                        hq2.push(j);
                     }
                 }
 
