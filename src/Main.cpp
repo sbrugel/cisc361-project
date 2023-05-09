@@ -88,12 +88,11 @@ int main() {
         }
     }
 
-    const int MAX_TIME = 50; // temporary but we still need a maximum time of some sort
-    std::vector<Job>::iterator jobIter;
+    constexpr int MAX_TIME = 50; // temporary but we still need a maximum time of some sort
     while (system.time < MAX_TIME) {
         std::cout << "the current system time is " << system.time << std::endl;
 
-        for (jobIter = jobs.begin(); jobIter != jobs.end(); ++jobIter) {
+        for (auto jobIter = jobs.begin(); jobIter != jobs.end(); ++jobIter) {
             if (jobIter->arrivalTime == system.time) {
                 std::cout << "oh dang!!!! a new job has arrived at time " << system.time << "!!! its Id is "
                           << jobIter->id << std::endl;
@@ -103,11 +102,11 @@ int main() {
                     if (jobIter->priority == 1) {
                         // put in SJF
                         hq1.enqueue(*jobIter);
-                        hq1.printQueue();
+                        std::cout << std::string{hq1};
                     } else {
                         // put in FIFO
                         hq2.enqueue(*jobIter);
-                        hq2.printQueue();
+                        std::cout << std::string{hq2};
                     }
                 }
             }

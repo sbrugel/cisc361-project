@@ -7,59 +7,51 @@
 
 #include "HoldQueue.h"
 
-HoldQueue::HoldQueue(bool isPriority1) {
-    isSJF = isPriority1;
-}
+HoldQueue::HoldQueue(bool isPriority1)
+        : isSJF(isPriority1) {}
 
-void HoldQueue::enqueue(Job j) {
-    queue.push_back(j);
-    sortJobs();
-}
-
-void HoldQueue::printQueue() {
-    std::list<Job>::iterator it;
-    std::cout << "Contents of ";
-    if (isSJF) {
-        std::cout << "Hold Queue 1:" << std::endl;
-    } else {
-        std::cout << "Hold Queue 2:" << std::endl;
-    }
-
-    for (it = queue.begin(); it != queue.end(); ++it) {
-        std::cout << *it;
-    }
-}
-
-bool HoldQueue::compareJobsSJF(Job a, Job b) {
-    if (a.runningTime == b.runningTime) return a.arrivalTime < b.arrivalTime; // tie breaker
-    else return a.runningTime < b.runningTime; // sort by ascending order of running time
-}
-
-bool HoldQueue::compareJobsFIFO(Job a, Job b) {
-    return a.arrivalTime < b.arrivalTime;
+void HoldQueue::enqueue(Job job) {
+    this->queue.push_back(job);
+    this->sortJobs();
 }
 
 void HoldQueue::sortJobs() {
     // first put all jobs in a vector so we can sort them
-    std::vector<Job> vectorJobs;
-    for (auto & it : queue) {
-        vectorJobs.push_back(it);
+    std::vector<Job> jobs;
+    for (auto job : this->queue) {
+        jobs.push_back(job);
     }
 
-    if (isSJF) {
+    if (this->isSJF) {
         // sort jobs by running time
-        std::sort(vectorJobs.begin(), vectorJobs.end(), compareJobsSJF);
+        std::sort(jobs.begin(), jobs.end(), [](Job lhs, Job rhs) {
+            if (lhs.runningTime == rhs.runningTime)
+                return lhs.arrivalTime < rhs.arrivalTime; // tie breaker
+            else
+                return lhs.runningTime < rhs.runningTime; // sort by ascending order of running time
+        });
     } else {
         // sort jobs by arrival (probably not needed?)
-        std::sort(vectorJobs.begin(), vectorJobs.end(), compareJobsFIFO);
+        std::sort(jobs.begin(), jobs.end(), [](Job lhs, Job rhs) {
+            return lhs.arrivalTime < rhs.arrivalTime;
+        });
     }
 
-    queue.clear();
-    for (auto & vectorJob : vectorJobs) {
-        queue.push_back(vectorJob);
+    this->queue.clear();
+    for (auto job : jobs) {
+        this->queue.push_back(job);
     }
 }
 
 void HoldQueue::clearQueue() {
-    queue.clear();
+    this->queue.clear();
+}
+
+HoldQueue::operator std::string() const {
+    std::string out = std::string{"Hold Queue "} + (this->isSJF ? '1' : '2') + ": {\n";
+    for (auto it = this->queue.begin(); it != this->queue.end(); ++it) {
+        out += "  " + std::string{*it} + ",\n";
+    }
+    out += "}";
+    return out;
 }

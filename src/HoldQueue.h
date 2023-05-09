@@ -5,20 +5,19 @@
 #pragma once
 
 #include <list>
+#include <string>
 
 #include "Job.h"
 
 class HoldQueue {
-    bool isSJF;
-    std::list<Job> queue;
-
-    static bool compareJobsSJF(Job a, Job b);
-    static bool compareJobsFIFO(Job a, Job b);
-
 public:
     explicit HoldQueue(bool isPriority1);
-    void enqueue(Job j);
-    void printQueue();
+    void enqueue(Job job);
     void clearQueue();
     void sortJobs();
+
+    explicit operator std::string() const;
+private:
+    bool isSJF;
+    std::list<Job> queue;
 };

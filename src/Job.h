@@ -1,6 +1,6 @@
 #pragma once
 
-#include <iostream>
+#include <string>
 
 struct Job {
     int id;
@@ -11,8 +11,5 @@ struct Job {
     int devicesRequired;
     int currentTime;
 
-    friend std::ostream& operator<<(std::ostream& os, const Job& j) { //tostring
-        os << "This job has ID " << j.id << " Arrival Time " << j.arrivalTime << " Run Time " << j.runningTime << std::endl;
-        return os;
-    }
+    explicit operator std::string() const;
 };
