@@ -26,7 +26,7 @@ public:
     [[nodiscard]] int getTotalMemoryRequired() const;
     [[nodiscard]] int getTotalDevicesRequired() const;
 
-    [[nodiscard]] Job pop();
+    Job pop();
     [[nodiscard]] Job peek();
     void push(Job job);
     void clear();
@@ -38,5 +38,5 @@ protected:
 
     std::list<Job> queue;
     JobQueueSortType sortType;
-    std::string_view name;
+    std::string name;
 };
