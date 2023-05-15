@@ -101,28 +101,25 @@ int main() {
             }
             case CommandType::DISPLAY: {
                 auto info = std::get<CommandDisplayInfo>(command.info);
-                // todo: do stuff with display command
+
                 std::cout << "At time " << info.arrivalTime << ":" << std::endl;
 
                 std::cout << "Currently available main memory = " << system.availableMemory << ":" << std::endl;
                 std::cout << "Currently available devices = " << system.availableDevices << ":" << std::endl;
 
-                std::cout << "Completed jobs: " << std::endl;
-                std::cout << "// TODO" << "\n" << std::endl;
+                std::cout << std::string{completeQueue} << "\n"  << std::endl;
 
-                std::cout << "Hold Queue 1:" << std::endl;
                 std::cout << std::string{hq1} << "\n"  << std::endl;
-                std::cout << "Hold Queue 2:" << std::endl;
                 std::cout << std::string{hq2} << "\n"  << std::endl;
-                std::cout << "Ready queue:" << std::endl;
                 std::cout << std::string{readyQueue} << "\n"  << std::endl;
                 std::cout << "Process running on CPU:" << std::endl;
-                std::cout << "// TODO"  << "\n" << std::endl;
-                std::cout << "Wait queue:" << std::endl;
+                std::cout << "// TODO"  << "\n" << std::endl; // todo: print job ID, time accrued, time left (runningTime - currentTime)
                 std::cout << std::string{waitQueue} << "\n"  << std::endl;
 
-                std::cout << "System turnaround time: " << std::endl;
-                std::cout << "// TODO" << std::endl;
+                if (info.arrivalTime == 9999) {
+                    std::cout << "System turnaround time: " << std::endl;
+                    std::cout << "// TODO" << std::endl; // todo: print system turnaround
+                }
                 break;
             }
             default:

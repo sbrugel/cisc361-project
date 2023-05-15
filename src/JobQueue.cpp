@@ -1,5 +1,6 @@
 #include "JobQueue.h"
 #include <iostream>
+#include <string>
 
 JobQueue::JobQueue(JobQueueSortType jobQueueSortType, std::string_view name_)
         : sortType(jobQueueSortType)
@@ -52,30 +53,26 @@ JobQueue::operator std::string() const {
             out += " (SJF)";
             break;
         case JobQueueSortType::RR:
-            out += " (RR)";
+            if (name == "Ready Queue") {
+                out += " (RQ)";
+            } else {
+                out += " (WQ)";
+            }
             break;
     }
     out += ": {\n";
 
-    if (this->sortType == JobQueueSortType::FIFO) {
-        std::cout << "fifo job" << std::endl;
-    }
-    else if (this->sortType == JobQueueSortType::SJF) {
-        std::cout << "sjf job" << std::endl;
-    }
-    else if  (this->sortType == JobQueueSortType::RR) {
-        if (name == "Ready Queue") {
-            std::cout << "ready queue job" << std::endl;
-        } else {
-            std::cout << "wait queue job" << std::endl;
-        }
-    } else { // complete queue
-        std::cout << "complete job" << std::endl;
-    }
-
     for (auto it = this->queue.begin(); it != this->queue.end(); ++it) {
         //out += "  " + std::string{*it} + ",\n";
-
+        if (this->sortType == JobQueueSortType::FIFO || this->sortType == JobQueueSortType::SJF) {
+            out += "\tJob ID: " + std::to_string(it->id) + "\tRun Time: " + std::to_string(it->runningTime) + "\n";
+        }
+        else if  (this->sortType == JobQueueSortType::RR) {
+            out += "\tJob ID: " + std::to_string(it->id) + "\tRun Time: " + std::to_string(it->runningTime) + "\tTime Accrued: " + std::to_string(it->currentTime) + "\n";
+        }
+        else { // complete queue
+            out += "\tJob ID: " + std::to_string(it->id) + "\tArrival Time: " + std::to_string(it->arrivalTime) + "\tFinish Time: " + std::to_string(it->finishTime) + "\tTurnaround: " + std::to_string(it->finishTime - it->arrivalTime) + "\n";
+        }
     }
     out += "}";
     return out;
