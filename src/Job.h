@@ -11,5 +11,7 @@ struct Job {
     int devicesRequired;
     int currentTime;
 
+    int finishTime = -1;
+
     explicit operator std::string() const;
 };

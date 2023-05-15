@@ -16,6 +16,7 @@ enum class JobQueueSortType {
     FIFO,
     SJF,
     RR,
+    NONE
 };
 
 class JobQueue {

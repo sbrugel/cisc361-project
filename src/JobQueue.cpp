@@ -1,4 +1,5 @@
 #include "JobQueue.h"
+#include <iostream>
 
 JobQueue::JobQueue(JobQueueSortType jobQueueSortType, std::string_view name_)
         : sortType(jobQueueSortType)
@@ -55,8 +56,26 @@ JobQueue::operator std::string() const {
             break;
     }
     out += ": {\n";
+
+    if (this->sortType == JobQueueSortType::FIFO) {
+        std::cout << "fifo job" << std::endl;
+    }
+    else if (this->sortType == JobQueueSortType::SJF) {
+        std::cout << "sjf job" << std::endl;
+    }
+    else if  (this->sortType == JobQueueSortType::RR) {
+        if (name == "Ready Queue") {
+            std::cout << "ready queue job" << std::endl;
+        } else {
+            std::cout << "wait queue job" << std::endl;
+        }
+    } else { // complete queue
+        std::cout << "complete job" << std::endl;
+    }
+
     for (auto it = this->queue.begin(); it != this->queue.end(); ++it) {
-        out += "  " + std::string{*it} + ",\n";
+        //out += "  " + std::string{*it} + ",\n";
+
     }
     out += "}";
     return out;

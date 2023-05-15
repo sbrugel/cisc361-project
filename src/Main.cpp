@@ -24,6 +24,8 @@ int main() {
     JobQueue readyQueue{JobQueueSortType::RR, "Ready Queue"}; //
     JobQueue waitQueue{JobQueueSortType::RR, "Wait Queue"};
 
+    JobQueue completeQueue{JobQueueSortType::NONE, "Complete Queue"};
+
     // reading the input to get all properties
     std::ifstream infile("../inputs/i2.txt");
     if (!infile.is_open()) {
@@ -97,6 +99,27 @@ int main() {
             case CommandType::DISPLAY: {
                 auto info = std::get<CommandDisplayInfo>(command.info);
                 // todo: do stuff with display command
+                std::cout << "At time " << info.arrivalTime << ":" << std::endl;
+
+                std::cout << "Currently available main memory = " << system.availableMemory << ":" << std::endl;
+                std::cout << "Currently available devices = " << system.availableDevices << ":" << std::endl;
+
+                std::cout << "Completed jobs: " << std::endl;
+                std::cout << "// TODO" << "\n" << std::endl;
+
+                std::cout << "Hold Queue 1:" << std::endl;
+                std::cout << std::string{hq1} << "\n"  << std::endl;
+                std::cout << "Hold Queue 2:" << std::endl;
+                std::cout << std::string{hq2} << "\n"  << std::endl;
+                std::cout << "Ready queue:" << std::endl;
+                std::cout << std::string{readyQueue} << "\n"  << std::endl;
+                std::cout << "Process running on CPU:" << std::endl;
+                std::cout << "// TODO"  << "\n" << std::endl;
+                std::cout << "Wait queue:" << std::endl;
+                std::cout << std::string{waitQueue} << "\n"  << std::endl;
+
+                std::cout << "System turnaround time: " << std::endl;
+                std::cout << "// TODO" << std::endl;
                 break;
             }
             default:
@@ -104,11 +127,6 @@ int main() {
                 return 0;
         }
     }
-
-    std::cout << std::string{readyQueue} << std::endl;
-    std::cout << std::string{hq1} << std::endl;
-    std::cout << std::string{hq2} << std::endl;
-
     infile.close();
     return 0;
 }
