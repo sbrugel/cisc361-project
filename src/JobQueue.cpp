@@ -1,5 +1,4 @@
 #include "JobQueue.h"
-#include <iostream>
 #include <string>
 
 JobQueue::JobQueue(JobQueueSortType jobQueueSortType, std::string_view name_)
@@ -59,19 +58,22 @@ JobQueue::operator std::string() const {
                 out += " (WQ)";
             }
             break;
+        case JobQueueSortType::NONE:
+            // do nothing for complete queue
+            break;
     }
     out += ": {\n";
 
-    for (auto it = this->queue.begin(); it != this->queue.end(); ++it) {
+    for (const auto & it : this->queue) {
         //out += "  " + std::string{*it} + ",\n";
         if (this->sortType == JobQueueSortType::FIFO || this->sortType == JobQueueSortType::SJF) {
-            out += "\tJob ID: " + std::to_string(it->id) + "\tRun Time: " + std::to_string(it->runningTime) + "\n";
+            out += "\tJob ID: " + std::to_string(it.id) + "\tRun Time: " + std::to_string(it.runningTime) + "\n";
         }
         else if  (this->sortType == JobQueueSortType::RR) {
-            out += "\tJob ID: " + std::to_string(it->id) + "\tRun Time: " + std::to_string(it->runningTime) + "\tTime Accrued: " + std::to_string(it->currentTime) + "\n";
+            out += "\tJob ID: " + std::to_string(it.id) + "\tRun Time: " + std::to_string(it.runningTime) + "\tTime Accrued: " + std::to_string(it.currentTime) + "\n";
         }
         else { // complete queue
-            out += "\tJob ID: " + std::to_string(it->id) + "\tArrival Time: " + std::to_string(it->arrivalTime) + "\tFinish Time: " + std::to_string(it->finishTime) + "\tTurnaround: " + std::to_string(it->finishTime - it->arrivalTime) + "\n";
+            out += "\tJob ID: " + std::to_string(it.id) + "\tArrival Time: " + std::to_string(it.arrivalTime) + "\tFinish Time: " + std::to_string(it.finishTime) + "\tTurnaround: " + std::to_string(it.finishTime - it.arrivalTime) + "\n";
         }
     }
     out += "}";
@@ -104,6 +106,9 @@ void JobQueue::sortJobs() {
             break;
         case JobQueueSortType::RR:
             // todo: rr sort
+            break;
+        case JobQueueSortType::NONE:
+            // do nothing for complete queue
             break;
     }
 

@@ -21,7 +21,7 @@ int main() {
     JobQueue hq1{JobQueueSortType::SJF, "Hold Queue 1"};
     JobQueue hq2{JobQueueSortType::FIFO, "Hold Queue 2"};
 
-    JobQueue readyQueue{JobQueueSortType::RR, "Ready Queue"}; //
+    JobQueue readyQueue{JobQueueSortType::RR, "Ready Queue"};
     JobQueue waitQueue{JobQueueSortType::RR, "Wait Queue"};
 
     JobQueue completeQueue{JobQueueSortType::NONE, "Complete Queue"};
@@ -36,9 +36,6 @@ int main() {
     std::string line;
     while (std::getline(infile, line)) {
         CommandInfo command = parseCommand(line);
-
-        // Debug commands
-        // std::cout << std::string{command} << std::endl;
 
         // Let's see what command it is!
         switch (command.type) {
@@ -68,21 +65,15 @@ int main() {
                 Job j{info.jobID, info.priority, info.arrivalTime, info.executionTimeLength, info.memoryRequired, info.devicesRequired, 0};
                 if (j.memoryRequired > system.totalMemory || j.devicesRequired > system.totalDevices) break; // too much needed
 
-                std::cout << "a new job has arrived its Id is "
-                          << j.id << " and has required memory of " << j.memoryRequired << std::endl;
                 if (system.availableMemory >= j.memoryRequired) {
-                    std::cout << "adding it to the ready queue" << std::endl;
                     readyQueue.push(j);
                     system.availableMemory = system.totalMemory - readyQueue.getTotalMemoryRequired();
-                    std::cout << "memory available: " << system.availableMemory << " / " << system.totalMemory << std::endl;
                 } else {
                     if (j.priority == 1) {
                         // put in SJF
-                        std::cout << "adding it to the hold queue 1" << std::endl;
                         hq1.push(j);
                     } else {
                         // put in FIFO
-                        std::cout << "adding it to the hold queue 2" << std::endl;
                         hq2.push(j);
                     }
                 }
