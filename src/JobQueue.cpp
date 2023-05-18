@@ -1,4 +1,5 @@
 #include "JobQueue.h"
+#include "Job.h"
 #include <string>
 
 JobQueue::JobQueue(JobQueueSortType jobQueueSortType, std::string_view name_)
@@ -40,6 +41,21 @@ void JobQueue::push(Job job) {
 
 void JobQueue::clear() {
     this->queue.clear();
+}
+
+bool JobQueue::isEmpty(){
+    return this->queue.empty();
+}
+
+void JobQueue::push_back(Job job){
+    this->queue.push_back(job);
+}
+
+Job JobQueue::dequeue_front() {
+    Job job = this->queue.front();
+    Job deepCopy{job.id, job.priority, job.arrivalTime,job.runningTime,job.memoryRequired,job.devicesRequired,job.currentTime, job.quantumLeft, job.finishTime};
+    this->queue.pop_front();
+    return deepCopy;
 }
 
 JobQueue::operator std::string() const {
@@ -95,6 +111,7 @@ void JobQueue::sortJobs() {
                 return lhs.arrivalTime < rhs.arrivalTime;
             });
             break;
+
         case JobQueueSortType::SJF:
             // sort jobs by running time
             std::sort(jobs.begin(), jobs.end(), [](Job lhs, Job rhs) {
