@@ -27,7 +27,7 @@ int main() {
     JobQueue waitQueue{JobQueueSortType::RR, "Wait Queue"};
     JobQueue CPUQueue{JobQueueSortType::NONE, "CPUQueue"};
 
-    JobQueue completeQueue{JobQueueSortType::NONE, "Complete Queue"};
+    JobQueue completeQueue{JobQueueSortType::COMPLETE, "Complete Queue"};
 
     // reading the input to get all properties
     std::ifstream infile("../inputs/i0.txt");
@@ -76,7 +76,7 @@ int main() {
                 if (!hq1.isEmpty()){
                     Job pushFromHq1 = hq1.dequeue_front();
                     if (system.availableMemory >= pushFromHq1.memoryRequired) {
-                        readyQueue.push_back(pushFromHq1);
+                        readyQueue.push(pushFromHq1);
                         system.availableMemory -= pushFromHq1.memoryRequired;
                     }
                     else {
@@ -86,7 +86,7 @@ int main() {
                 else {
                     Job pushFromHq2 = hq2.dequeue_front();
                     if (system.availableMemory >= pushFromHq2.memoryRequired){
-                        readyQueue.push_back(pushFromHq2);
+                        readyQueue.push(pushFromHq2);
                         system.availableMemory -= pushFromHq2.memoryRequired;
                     }
                     else {
@@ -96,18 +96,18 @@ int main() {
             }
             if (CPUQueue.isEmpty() && !readyQueue.isEmpty()){
                 job = readyQueue.dequeue_front();
-                CPUQueue.push_back(job);
+                CPUQueue.push(job);
             }
             if (!CPUQueue.isEmpty()){
                 if (job.quantumLeft == system.quantum && !CPUQueue.isEmpty()){
                     job.quantumLeft = 0;
                     Job putBack = CPUQueue.dequeue_front();
                     putBack.currentTime = job.currentTime;
-                    readyQueue.push_back(putBack);
+                    readyQueue.push(putBack);
                 }
                 if (CPUQueue.isEmpty() && !readyQueue.isEmpty()) {
                     job = readyQueue.dequeue_front();
-                    CPUQueue.push_back(job);
+                    CPUQueue.push(job);
                 }
                 if (job.currentTime < job.runningTime && job.quantumLeft < system.quantum) {
                     job.currentTime += 1;
@@ -117,7 +117,7 @@ int main() {
                     system.availableMemory += job.memoryRequired;
                     Job completeJob = CPUQueue.dequeue_front();
                     completeJob.finishTime = system.time;
-                    completeQueue.push_back(completeJob);
+                    completeQueue.push(completeJob);
                 }
             }
         }
@@ -190,9 +190,10 @@ int main() {
                           << std::endl; // todo: print job ID, time accrued, time left (runningTime - currentTime)
                 std::cout << std::string{waitQueue} << "\n" << std::endl;
 
-                if (info.arrivalTime == 9999) {
+                if (info.arrivalTime == 9999) { // only print turnaround at the very end
                     std::cout << "System turnaround time: " << std::endl;
-                    std::cout << "// TODO" << std::endl; // todo: print system turnaround
+                    std::cout << static_cast<float>(completeQueue.getTurnarounds()) / completeQueue.getNumJobs() << std::endl;
+                    // we cast because if we don't, it just results in integer division
                 }
                 break;
             }

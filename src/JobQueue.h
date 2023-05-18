@@ -16,6 +16,7 @@ enum class JobQueueSortType {
     FIFO,
     SJF,
     RR,
+    COMPLETE,
     NONE
 };
 
@@ -30,11 +31,13 @@ public:
     [[nodiscard]] Job peek();
     void push(Job job);
     void clear();
-    bool isEmpty();
+    bool isEmpty() const;
     void push_back(Job job);
     Job dequeue_front();
+    int getTurnarounds();
+    int getNumJobs();
 
-        explicit operator std::string() const;
+    explicit operator std::string() const;
 
     std::list<Job> queue;
 protected:

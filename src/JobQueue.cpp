@@ -6,6 +6,10 @@ JobQueue::JobQueue(JobQueueSortType jobQueueSortType, std::string_view name_)
         : sortType(jobQueueSortType)
         , name(name_.data()) {}
 
+/**
+* Gets the memory required by every Job in the queue.
+* @returns An integer, representing the total memory required.
+*/
 [[nodiscard]] int JobQueue::getTotalMemoryRequired() const {
     int mem = 0;
     for (auto job : this->queue) {
@@ -14,6 +18,10 @@ JobQueue::JobQueue(JobQueueSortType jobQueueSortType, std::string_view name_)
     return mem;
 }
 
+/**
+ * Gets the # of devices required by every Job in the queue.
+ * @returns An integer, representing the total devices required.
+ */
 [[nodiscard]] int JobQueue::getTotalDevicesRequired() const {
     int dev = 0;
     for (auto job : this->queue) {
@@ -22,35 +30,43 @@ JobQueue::JobQueue(JobQueueSortType jobQueueSortType, std::string_view name_)
     return dev;
 }
 
-Job JobQueue::pop() {
-    this->sortJobs();
-    Job job = this->queue.front();
-    this->queue.pop_front();
-    return job;
-}
-
+/**
+ * Sorts the queue and returns the front most Job in the queue.
+ * @returns The Job object at the front of the queue.
+ */
 Job JobQueue::peek() {
     this->sortJobs();
     return this->queue.front();
 }
 
+/**
+ * Adds a job to the back of queue, and calls the sort function.
+ * Sorting criteria varies based on queue type (some queues do not have sorting implemented at all).
+ */
 void JobQueue::push(Job job) {
     this->queue.push_back(job);
     this->sortJobs();
 }
 
+/**
+ * Removes all jobs from the queue.
+ */
 void JobQueue::clear() {
     this->queue.clear();
 }
 
-bool JobQueue::isEmpty(){
+/**
+ * Removes true if there aren't any jobs in the queue.
+ * @return True/False
+ */
+bool JobQueue::isEmpty() const{
     return this->queue.empty();
 }
 
-void JobQueue::push_back(Job job){
-    this->queue.push_back(job);
-}
-
+/**
+ * Removes the Job object at the front of the queue, and returns it.
+ * @return A deep copy of the Job at the front most position
+ */
 Job JobQueue::dequeue_front() {
     Job job = this->queue.front();
     Job deepCopy{job.id, job.priority, job.arrivalTime,job.runningTime,job.memoryRequired,job.devicesRequired,job.currentTime, job.quantumLeft, job.finishTime};
@@ -58,6 +74,10 @@ Job JobQueue::dequeue_front() {
     return deepCopy;
 }
 
+/**
+ * A toString function for this queue.
+ * @return Prints queue type and the jobs within. (Properties printed vary between queue types)
+ */
 JobQueue::operator std::string() const {
     std::string out = this->name;
     switch (this->sortType) {
@@ -74,9 +94,13 @@ JobQueue::operator std::string() const {
                 out += " (WQ)";
             }
             break;
-        case JobQueueSortType::NONE:
-            // do nothing for complete queue
+        case JobQueueSortType::COMPLETE:
+            out += " (COMPLETE)";
             break;
+        case JobQueueSortType::NONE:
+            // do nothing
+            break;
+
     }
     out += ": {\n";
 
@@ -96,7 +120,14 @@ JobQueue::operator std::string() const {
     return out;
 }
 
-void JobQueue::sortJobs() {
+/**
+ * This sorts all jobs in the queue based on its type.
+ *
+ * FIFO = arrival time (ascending)
+ * SJF = running time (ascending)
+ * COMPLETE = job ID (ascending)
+ */
+void JobQueue::sortJobs() { // this sorts all the jobs based on the type of queue
     // first put all jobs in a vector so we can sort them
     std::vector<Job> jobs;
     for (auto job : this->queue) {
@@ -124,8 +155,13 @@ void JobQueue::sortJobs() {
         case JobQueueSortType::RR:
             // todo: rr sort
             break;
+        case JobQueueSortType::COMPLETE:
+            std::sort(jobs.begin(), jobs.end(), [](Job lhs, Job rhs) {
+                return lhs.id < rhs.id; // sort by ascending order of job ID
+            });
+            break;
         case JobQueueSortType::NONE:
-            // do nothing for complete queue
+            // do nothing
             break;
     }
 
@@ -133,4 +169,28 @@ void JobQueue::sortJobs() {
     for (auto job : jobs) {
         this->queue.push_back(job);
     }
+}
+
+/**
+ * This gets the sum of all jobs' turnaround times. Only works with the complete queue.
+ * @returns The sum of the turnaround times
+ */
+int JobQueue::getTurnarounds() {
+    if (sortType != JobQueueSortType::COMPLETE) {
+        return 0; // can't get turnarounds of incomplete jobs
+    }
+
+    int turnaroundSum = 0;
+    for (auto job : this->queue) {
+        turnaroundSum += job.finishTime - job.arrivalTime;
+    }
+    return turnaroundSum;
+}
+
+/**
+ * This returns the number of Jobs in the queue.
+ * @return Queue length
+ */
+int JobQueue::getNumJobs() {
+    return this->queue.size();
 }
