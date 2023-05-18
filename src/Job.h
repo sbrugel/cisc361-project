@@ -10,8 +10,8 @@ struct Job {
     int memoryRequired;
     int devicesRequired;
     int currentTime;
-
-    int finishTime = -1;
+    int quantumLeft;
+    int finishTime;
 
     explicit operator std::string() const;
 };

@@ -30,13 +30,16 @@ public:
     [[nodiscard]] Job peek();
     void push(Job job);
     void clear();
+    bool isEmpty();
+    void push_back(Job job);
+    Job dequeue_front();
 
-    explicit operator std::string() const;
+        explicit operator std::string() const;
 
+    std::list<Job> queue;
 protected:
     void sortJobs();
 
-    std::list<Job> queue;
     JobQueueSortType sortType;
     std::string name;
 };
