@@ -20,23 +20,23 @@ CommandType charToCommandType(char c) {
 }
 
 CommandSystemInfo::operator std::string() const {
-    return string::format("System{ startTime=%d, memoryAmount=%d, deviceAmount=%d, quantum=%d }", this->startTime, this->memoryAmount, this->deviceAmount, this->quantum);
+    return string::format("System{ memoryAmount=%d, deviceAmount=%d, quantum=%d }", this->memoryAmount, this->deviceAmount, this->quantum);
 }
 
 CommandNewJobInfo::operator std::string() const {
-    return string::format("NewJob{ arrivalTime=%d, jobID=%d, memoryRequired=%d, devicesRequired=%d, executionTimeLength=%d, priority=%d }", this->arrivalTime, this->jobID, this->memoryRequired, this->devicesRequired, this->executionTimeLength, this->priority);
+    return string::format("NewJob{ jobID=%d, memoryRequired=%d, devicesRequired=%d, executionTimeLength=%d, priority=%d }", this->jobID, this->memoryRequired, this->devicesRequired, this->executionTimeLength, this->priority);
 }
 
 CommandDeviceRequestInfo::operator std::string() const {
-    return string::format("DeviceRequest{ arrivalTime=%d, jobID=%d, devicesRequested=%d }", this->arrivalTime, this->jobID, this->devicesRequested);
+    return string::format("DeviceRequest{ jobID=%d, devicesRequested=%d }", this->jobID, this->devicesRequested);
 }
 
 CommandDeviceReleaseInfo::operator std::string() const {
-    return string::format("DeviceRelease{ arrivalTime=%d, jobID=%d, devicesReleased=%d }", this->arrivalTime, this->jobID, this->devicesReleased);
+    return string::format("DeviceRelease{ jobID=%d, devicesReleased=%d }", this->jobID, this->devicesReleased);
 }
 
 CommandDisplayInfo::operator std::string() const {
-    return string::format("Display{ arrivalTime=%d }", this->arrivalTime);
+    return "Display{}";
 }
 
 CommandInvalid::operator std::string() const {
@@ -71,17 +71,20 @@ CommandDisplayInfo parseDisplayCommand(std::string_view line);
 } // namespace
 
 CommandInfo parseCommand(std::string_view line) {
+    auto strings = string::split(line.data(), ' ');
+    int commandTime = std::stoi(strings[1]);
+
     switch (charToCommandType(line[0])) {
         case CommandType::SYSTEM:
-            return {CommandType::SYSTEM, parseSystemCommand(line)};
+            return {CommandType::SYSTEM, commandTime, parseSystemCommand(line)};
         case CommandType::NEW_JOB:
-            return {CommandType::NEW_JOB, parseNewJobCommand(line)};
+            return {CommandType::NEW_JOB, commandTime, parseNewJobCommand(line)};
         case CommandType::DEVICE_REQUEST:
-            return {CommandType::DEVICE_REQUEST, parseDeviceRequestCommand(line)};
+            return {CommandType::DEVICE_REQUEST, commandTime, parseDeviceRequestCommand(line)};
         case CommandType::DEVICE_RELEASE:
-            return {CommandType::DEVICE_RELEASE, parseDeviceReleaseCommand(line)};
+            return {CommandType::DEVICE_RELEASE, commandTime, parseDeviceReleaseCommand(line)};
         case CommandType::DISPLAY:
-            return {CommandType::DISPLAY, parseDisplayCommand(line)};
+            return {CommandType::DISPLAY, commandTime, parseDisplayCommand(line)};
         case CommandType::INVALID:
             return {};
     }
@@ -94,7 +97,6 @@ CommandSystemInfo parseSystemCommand(std::string_view line) {
     auto strings = string::split(line.data(), ' ');
 
     CommandSystemInfo info{};
-    info.startTime = std::stoi(strings[1]);
 
     if (strings.size() < 2)
         return info;
@@ -122,7 +124,6 @@ CommandNewJobInfo parseNewJobCommand(std::string_view line) {
     auto strings = string::split(line.data(), ' ');
 
     CommandNewJobInfo info{};
-    info.arrivalTime = std::stoi(strings[1]);
 
     if (strings.size() < 2)
         return info;
@@ -156,7 +157,6 @@ CommandDeviceRequestInfo parseDeviceRequestCommand(std::string_view line) {
     auto strings = string::split(line.data(), ' ');
 
     CommandDeviceRequestInfo info{};
-    info.arrivalTime = std::stoi(strings[1]);
 
     if (strings.size() < 2)
         return info;
@@ -181,7 +181,6 @@ CommandDeviceReleaseInfo parseDeviceReleaseCommand(std::string_view line) {
     auto strings = string::split(line.data(), ' ');
 
     CommandDeviceReleaseInfo info{};
-    info.arrivalTime = std::stoi(strings[1]);
 
     if (strings.size() < 2)
         return info;
@@ -202,14 +201,9 @@ CommandDeviceReleaseInfo parseDeviceReleaseCommand(std::string_view line) {
     return info;
 }
 
-CommandDisplayInfo parseDisplayCommand(std::string_view line) {
-    auto strings = string::split(line.data(), ' ');
-
-    CommandDisplayInfo info{};
-    info.arrivalTime = std::stoi(strings[1]);
-
-    // This one has no other arguments
-    return info;
+CommandDisplayInfo parseDisplayCommand([[maybe_unused]] std::string_view line) {
+    // This one has no arguments
+    return CommandDisplayInfo{};
 }
 
 } // namespace

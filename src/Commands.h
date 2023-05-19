@@ -16,7 +16,6 @@ enum class CommandType {
 CommandType charToCommandType(char c);
 
 struct CommandSystemInfo {
-    int startTime;
     int memoryAmount;
     int deviceAmount;
     int quantum;
@@ -25,7 +24,6 @@ struct CommandSystemInfo {
 };
 
 struct CommandNewJobInfo {
-    int arrivalTime;
     int jobID;
     int memoryRequired;
     int devicesRequired;
@@ -36,7 +34,6 @@ struct CommandNewJobInfo {
 };
 
 struct CommandDeviceRequestInfo {
-    int arrivalTime;
     int jobID;
     int devicesRequested;
 
@@ -44,7 +41,6 @@ struct CommandDeviceRequestInfo {
 };
 
 struct CommandDeviceReleaseInfo {
-    int arrivalTime;
     int jobID;
     int devicesReleased;
 
@@ -52,8 +48,6 @@ struct CommandDeviceReleaseInfo {
 };
 
 struct CommandDisplayInfo {
-    int arrivalTime;
-
     explicit operator std::string() const;
 };
 
@@ -63,6 +57,7 @@ struct CommandInvalid {
 
 struct CommandInfo {
     CommandType type = CommandType::INVALID;
+    int time = -1;
     std::variant<
             CommandSystemInfo,
             CommandNewJobInfo,

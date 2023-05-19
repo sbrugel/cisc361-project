@@ -2,7 +2,6 @@
 #include <fstream>
 #include <string>
 
-
 #include "Commands.h"
 #include "Job.h"
 #include "JobQueue.h"
@@ -15,7 +14,6 @@ struct System {
     int availableDevices;
     int quantum;
 };
-
 
 int main() {
     System system{};
@@ -37,69 +35,37 @@ int main() {
     }
 
     std::string line;
-    int commandArrival;
     while (std::getline(infile, line)) {
         CommandInfo command = parseCommand(line);
 
-        switch(command.type) {
-            case CommandType::SYSTEM: {
-                auto info = std::get<CommandSystemInfo>(command.info);
-                commandArrival = info.startTime;
-                break;
-            }
-            case CommandType::NEW_JOB: {
-                auto info = std::get<CommandNewJobInfo>(command.info);
-                commandArrival = info.arrivalTime;
-                break;
-            }
-            case CommandType::DEVICE_REQUEST: {
-                auto info = std::get<CommandDeviceRequestInfo>(command.info);
-                commandArrival = info.arrivalTime;
-                break;
-            }
-            case CommandType::DEVICE_RELEASE: {
-                auto info = std::get<CommandDeviceReleaseInfo>(command.info);
-                commandArrival = info.arrivalTime;
-                break;
-            }
-            case CommandType::DISPLAY: {
-                auto info = std::get<CommandDisplayInfo>(command.info);
-                commandArrival = info.arrivalTime;
-                break;
-            }
-        }
-
-        while (system.time < commandArrival) {
+        while (system.time < command.time) {
             system.time += 1;
-            Job job;
-            if (!hq1.isEmpty() || !hq2.isEmpty()){
-                if (!hq1.isEmpty()){
+            Job job{};
+            if (!hq1.isEmpty() || !hq2.isEmpty()) {
+                if (!hq1.isEmpty()) {
                     Job pushFromHq1 = hq1.dequeue_front();
                     if (system.availableMemory >= pushFromHq1.memoryRequired) {
                         readyQueue.push(pushFromHq1);
                         system.availableMemory -= pushFromHq1.memoryRequired;
-                    }
-                    else {
+                    } else {
                         hq1.push(pushFromHq1);
                     }
-                }
-                else {
+                } else {
                     Job pushFromHq2 = hq2.dequeue_front();
-                    if (system.availableMemory >= pushFromHq2.memoryRequired){
+                    if (system.availableMemory >= pushFromHq2.memoryRequired) {
                         readyQueue.push(pushFromHq2);
                         system.availableMemory -= pushFromHq2.memoryRequired;
-                    }
-                    else {
+                    } else {
                         hq1.push(pushFromHq2);
                     }
                 }
             }
-            if (CPUQueue.isEmpty() && !readyQueue.isEmpty()){
+            if (CPUQueue.isEmpty() && !readyQueue.isEmpty()) {
                 job = readyQueue.dequeue_front();
                 CPUQueue.push(job);
             }
-            if (!CPUQueue.isEmpty()){
-                if (job.quantumLeft == system.quantum && !CPUQueue.isEmpty()){
+            if (!CPUQueue.isEmpty()) {
+                if (job.quantumLeft == system.quantum && !CPUQueue.isEmpty()) {
                     job.quantumLeft = 0;
                     Job putBack = CPUQueue.dequeue_front();
                     putBack.currentTime = job.currentTime;
@@ -121,6 +87,7 @@ int main() {
                 }
             }
         }
+
         // Let's see what command it is!
         switch (command.type) {
             case CommandType::SYSTEM: {
@@ -134,7 +101,7 @@ int main() {
 
                 // setup system
                 system = System{};
-                system.time = info.startTime;
+                system.time = command.time;
                 system.totalMemory = info.memoryAmount;
                 system.availableMemory = system.totalMemory;
                 system.totalDevices = info.deviceAmount;
@@ -146,7 +113,7 @@ int main() {
             case CommandType::NEW_JOB: {
                 auto info = std::get<CommandNewJobInfo>(command.info);
 
-                Job j{info.jobID, info.priority, info.arrivalTime, info.executionTimeLength, info.memoryRequired,
+                Job j{info.jobID, info.priority, command.time, info.executionTimeLength, info.memoryRequired,
                       info.devicesRequired, 0, 0, -1};
                 if (j.memoryRequired > system.totalMemory || j.devicesRequired > system.totalDevices)
                     break; // too much needed
@@ -175,7 +142,7 @@ int main() {
             case CommandType::DISPLAY: {
                 auto info = std::get<CommandDisplayInfo>(command.info);
 
-                std::cout << "At time " << info.arrivalTime << ":" << std::endl;
+                std::cout << "At time " << command.time << ":" << std::endl;
 
                 std::cout << "Currently available main memory = " << system.availableMemory << ":" << std::endl;
                 std::cout << "Currently available devices = " << system.availableDevices << ":" << std::endl;
@@ -190,9 +157,9 @@ int main() {
                           << std::endl; // todo: print job ID, time accrued, time left (runningTime - currentTime)
                 std::cout << std::string{waitQueue} << "\n" << std::endl;
 
-                if (info.arrivalTime == 9999) { // only print turnaround at the very end
+                if (command.time == 9999) { // only print turnaround at the very end
                     std::cout << "System turnaround time: " << std::endl;
-                    std::cout << static_cast<float>(completeQueue.getTurnarounds()) / completeQueue.getNumJobs() << std::endl;
+                    std::cout << static_cast<float>(completeQueue.getTurnarounds()) / static_cast<float>(completeQueue.getNumJobs()) << std::endl;
                     // we cast because if we don't, it just results in integer division
                 }
                 break;
