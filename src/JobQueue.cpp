@@ -31,6 +31,16 @@ JobQueue::JobQueue(JobQueueSortType jobQueueSortType, std::string_view name_)
 }
 
 /**
+ * Removes the Job object at the front of the queue, and returns it.
+ * @return The Job at the front most position
+ */
+Job JobQueue::pop() {
+    Job job = this->queue.front();
+    this->queue.pop_front();
+    return job;
+}
+
+/**
  * Sorts the queue and returns the front most Job in the queue.
  * @returns The Job object at the front of the queue.
  */
@@ -61,17 +71,6 @@ void JobQueue::clear() {
  */
 bool JobQueue::isEmpty() const{
     return this->queue.empty();
-}
-
-/**
- * Removes the Job object at the front of the queue, and returns it.
- * @return A deep copy of the Job at the front most position
- */
-Job JobQueue::dequeue_front() {
-    Job job = this->queue.front();
-    Job deepCopy{job.id, job.priority, job.arrivalTime,job.runningTime,job.memoryRequired,job.devicesRequired,job.currentTime, job.quantumLeft, job.finishTime};
-    this->queue.pop_front();
-    return deepCopy;
 }
 
 /**
@@ -152,14 +151,15 @@ void JobQueue::sortJobs() { // this sorts all the jobs based on the type of queu
                     return lhs.runningTime < rhs.runningTime; // sort by ascending order of running time
             });
             break;
-        case JobQueueSortType::RR:
-            // todo: rr sort
-            break;
+
         case JobQueueSortType::COMPLETE:
             std::sort(jobs.begin(), jobs.end(), [](Job lhs, Job rhs) {
                 return lhs.id < rhs.id; // sort by ascending order of job ID
             });
             break;
+
+        case JobQueueSortType::RR:
+            // I don't think Round-Robin sort is done here
         case JobQueueSortType::NONE:
             // do nothing
             break;
@@ -191,6 +191,6 @@ int JobQueue::getTurnarounds() {
  * This returns the number of Jobs in the queue.
  * @return Queue length
  */
-int JobQueue::getNumJobs() {
-    return this->queue.size();
+int JobQueue::getNumJobs() const {
+    return static_cast<int>(this->queue.size());
 }

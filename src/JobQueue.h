@@ -31,18 +31,16 @@ public:
     [[nodiscard]] Job peek();
     void push(Job job);
     void clear();
-    bool isEmpty() const;
-    void push_back(Job job);
-    Job dequeue_front();
-    int getTurnarounds();
-    int getNumJobs();
+    [[nodiscard]] bool isEmpty() const;
+    [[nodiscard]] int getTurnarounds();
+    [[nodiscard]] int getNumJobs() const;
 
     explicit operator std::string() const;
 
-    std::list<Job> queue;
 protected:
     void sortJobs();
 
+    std::list<Job> queue;
     JobQueueSortType sortType;
     std::string name;
 };

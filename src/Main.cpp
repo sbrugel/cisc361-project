@@ -23,7 +23,7 @@ int main() {
 
     JobQueue readyQueue{JobQueueSortType::RR, "Ready Queue"};
     JobQueue waitQueue{JobQueueSortType::RR, "Wait Queue"};
-    JobQueue CPUQueue{JobQueueSortType::NONE, "CPUQueue"};
+    JobQueue cpuQueue{JobQueueSortType::NONE, "CPU Queue"};
 
     JobQueue completeQueue{JobQueueSortType::COMPLETE, "Complete Queue"};
 
@@ -43,7 +43,7 @@ int main() {
             Job job{};
             if (!hq1.isEmpty() || !hq2.isEmpty()) {
                 if (!hq1.isEmpty()) {
-                    Job pushFromHq1 = hq1.dequeue_front();
+                    Job pushFromHq1 = hq1.pop();
                     if (system.availableMemory >= pushFromHq1.memoryRequired) {
                         readyQueue.push(pushFromHq1);
                         system.availableMemory -= pushFromHq1.memoryRequired;
@@ -51,7 +51,7 @@ int main() {
                         hq1.push(pushFromHq1);
                     }
                 } else {
-                    Job pushFromHq2 = hq2.dequeue_front();
+                    Job pushFromHq2 = hq2.pop();
                     if (system.availableMemory >= pushFromHq2.memoryRequired) {
                         readyQueue.push(pushFromHq2);
                         system.availableMemory -= pushFromHq2.memoryRequired;
@@ -60,28 +60,28 @@ int main() {
                     }
                 }
             }
-            if (CPUQueue.isEmpty() && !readyQueue.isEmpty()) {
-                job = readyQueue.dequeue_front();
-                CPUQueue.push(job);
+            if (cpuQueue.isEmpty() && !readyQueue.isEmpty()) {
+                job = readyQueue.pop();
+                cpuQueue.push(job);
             }
-            if (!CPUQueue.isEmpty()) {
-                if (job.quantumLeft == system.quantum && !CPUQueue.isEmpty()) {
+            if (!cpuQueue.isEmpty()) {
+                if (job.quantumLeft == system.quantum && !cpuQueue.isEmpty()) {
                     job.quantumLeft = 0;
-                    Job putBack = CPUQueue.dequeue_front();
+                    Job putBack = cpuQueue.pop();
                     putBack.currentTime = job.currentTime;
                     readyQueue.push(putBack);
                 }
-                if (CPUQueue.isEmpty() && !readyQueue.isEmpty()) {
-                    job = readyQueue.dequeue_front();
-                    CPUQueue.push(job);
+                if (cpuQueue.isEmpty() && !readyQueue.isEmpty()) {
+                    job = readyQueue.pop();
+                    cpuQueue.push(job);
                 }
                 if (job.currentTime < job.runningTime && job.quantumLeft < system.quantum) {
                     job.currentTime += 1;
                     job.quantumLeft += 1;
                 }
-                if (job.currentTime == job.runningTime && !CPUQueue.isEmpty()) {
+                if (job.currentTime == job.runningTime && !cpuQueue.isEmpty()) {
                     system.availableMemory += job.memoryRequired;
-                    Job completeJob = CPUQueue.dequeue_front();
+                    Job completeJob = cpuQueue.pop();
                     completeJob.finishTime = system.time;
                     completeQueue.push(completeJob);
                 }
@@ -113,17 +113,15 @@ int main() {
             case CommandType::NEW_JOB: {
                 auto info = std::get<CommandNewJobInfo>(command.info);
 
-                Job j{info.jobID, info.priority, command.time, info.executionTimeLength, info.memoryRequired,
-                      info.devicesRequired, 0, 0, -1};
-                if (j.memoryRequired > system.totalMemory || j.devicesRequired > system.totalDevices)
+                Job j{info.jobID, info.priority, command.time, info.executionTimeLength, info.memoryRequired, info.devicesRequired, 0, 0, -1};
+                if (j.memoryRequired > system.totalMemory || j.devicesRequired > system.totalDevices) {
                     break; // too much needed
-
+                }
 
                 if (j.priority == 1) {
                     // put in SJF
                     hq1.push(j);
-                }
-                else {
+                } else {
                     // put in FIFO
                     hq2.push(j);
                 }
@@ -140,8 +138,6 @@ int main() {
                 break;
             }
             case CommandType::DISPLAY: {
-                auto info = std::get<CommandDisplayInfo>(command.info);
-
                 std::cout << "At time " << command.time << ":" << std::endl;
 
                 std::cout << "Currently available main memory = " << system.availableMemory << ":" << std::endl;
