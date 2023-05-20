@@ -37,9 +37,9 @@ int main() {
         }
 
         // Update simulation to latest timestamp
+        Job job{};
         while (s.time < command.time) {
             s.time += 1;
-            Job job{};
             if (!s.hq1.isEmpty() || !s.hq2.isEmpty()) {
                 if (!s.hq1.isEmpty()) {
                     Job pushFromHq1 = s.hq1.pop();
@@ -64,9 +64,10 @@ int main() {
                 s.cpuQueue.push(job);
             }
             if (!s.cpuQueue.isEmpty()) {
+                job = s.cpuQueue.peek();
                 if (job.quantumLeft == s.quantum && !s.cpuQueue.isEmpty()) {
-                    job.quantumLeft = 0;
                     Job putBack = s.cpuQueue.pop();
+                    putBack.quantumLeft = 0;
                     putBack.currentTime = job.currentTime;
                     s.readyQueue.push(putBack);
                 }
@@ -75,12 +76,14 @@ int main() {
                     s.cpuQueue.push(job);
                 }
                 if (job.currentTime < job.runningTime && job.quantumLeft < s.quantum) {
+                    job = s.cpuQueue.pop();
                     job.currentTime += 1;
                     job.quantumLeft += 1;
+                    s.cpuQueue.push(job);
                 }
                 if (job.currentTime == job.runningTime && !s.cpuQueue.isEmpty()) {
-                    s.availableMemory += job.memoryRequired;
                     Job completeJob = s.cpuQueue.pop();
+                    s.availableMemory += completeJob.memoryRequired;
                     completeJob.finishTime = s.time;
                     s.completeQueue.push(completeJob);
                 }
