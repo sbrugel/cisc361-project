@@ -82,7 +82,6 @@ int main(const int argc, const char* const argv[]) {
         }
 
         // Update simulation to latest timestamp
-        Job job{};
         while (s.time < command.time) {
             s.time += 1;
             if (!s.hq1.isEmpty() || !s.hq2.isEmpty()) {
@@ -105,11 +104,11 @@ int main(const int argc, const char* const argv[]) {
                 }
             }
             if (s.cpuQueue.isEmpty() && !s.readyQueue.isEmpty()) {
-                job = s.readyQueue.pop();
+                Job job = s.readyQueue.pop();
                 s.cpuQueue.push(job);
             }
             if (!s.cpuQueue.isEmpty()) {
-                job = s.cpuQueue.peek();
+                Job job = s.cpuQueue.peek();
                 if (job.quantumLeft == s.quantum && !s.cpuQueue.isEmpty()) {
                     Job putBack = s.cpuQueue.pop();
                     putBack.quantumLeft = 0;
