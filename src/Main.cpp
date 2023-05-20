@@ -1,22 +1,67 @@
-#include <iostream>
-#include <fstream>
-#include <string>
+#include <algorithm>
+#include <cstdlib>
+#include <memory>
 
+#include "utility/String.h"
 #include "Commands.h"
+#include "Input.h"
 #include "System.h"
 
-int main() {
+namespace {
+
+void printHelp() {
+    std::cout << "--- CISC361 Term Project ---\n"
+                 "Options:\n"
+                 "-h : Prints this help message\n"
+                 "-f <file> : Runs the given input file\n"
+                 "-f <number> : Runs the given input file based on its number\n"
+                 "-i : Interactive mode\n" << std::endl;
+}
+
+std::string_view getOptionValue(const int argc, const char* const argv[], std::string_view option, std::string_view default_ = "") {
+    auto end = argv + argc;
+    auto it = std::find(argv, end, option);
+    if (it != end && ++it != end) {
+        return *it;
+    }
+    return default_;
+}
+
+bool optionExists(const int argc, const char* const argv[], std::string_view option) {
+    return std::find(argv, argv + argc, option) != (argv + argc);
+}
+
+std::unique_ptr<IInput> getInput(const int argc, const char* const argv[]) {
+    if (optionExists(argc, argv, "-h")) {
+        printHelp();
+        exit(EXIT_SUCCESS);
+    } else if (optionExists(argc, argv, "-i")) {
+        return std::make_unique<TerminalInput>();
+    } else if (optionExists(argc, argv, "-f")) {
+        auto value = getOptionValue(argc, argv, "-f");
+        if (value == "0" || value == "1" || value == "2") {
+            return std::make_unique<FileInput>(string::format("../inputs/i%s.txt", value));
+        }
+        return std::make_unique<FileInput>(value);
+    }
+    return nullptr;
+}
+
+} // namespace
+
+int main(const int argc, const char* const argv[]) {
     System s{};
 
     // reading the input to get all properties
-    std::ifstream infile("../inputs/i0.txt");
-    if (!infile.is_open()) {
-        std::cout << "Unable to open file." << std::endl;
-        return 0;
+    auto input = getInput(argc, argv);
+    if (!input || !input->isValid()) {
+        std::cout << "Unable to read input. Did you specify a valid command-line option?" << '\n' << std::endl;
+        printHelp();
+        return EXIT_FAILURE;
     }
 
-    std::string line;
-    while (std::getline(infile, line)) {
+    while (auto next = input->nextLine()) {
+        std::string line = *next;
         CommandInfo command = parseCommand(line);
 
         // Handle this here, because we don't want to update the simulation if true
@@ -128,9 +173,9 @@ int main() {
             }
             default:
                 std::cout << "Broken line: \"" << line << '\"' << std::endl;
-                return 0;
+                return EXIT_FAILURE;
         }
     }
-    infile.close();
-    return 0;
+
+    return EXIT_SUCCESS;
 }

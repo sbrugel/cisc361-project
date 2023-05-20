@@ -1,6 +1,31 @@
 # S23 CISC361 Term Project
 by Simon Brugel, Brendan Lewis, Evan Watson.
 
+## Building & Running
+
+#### Requirements:
+You need CMake installed, as well as a C++17 compiler.
+
+If you have a working C++ IDE, feel free to use that. If not, run these commands in this directory:
+
+`cmake -B build`
+
+`cmake --build .`
+
+`cd build`
+
+`./CISC361-Term-Project <options>`
+
+#### Program Options:
+
+`-h` - Print a help message and exit.
+
+`-f <path to file>` - Specify the full absolute path to an input file. (e.g. `/home/user/.../input.txt`)
+
+`-f <input file number>` - Specify what input file to run. (0, 1, or 2)
+
+`-i` - Interactive mode. Enter commands manually into the terminal. Quits after a display command at time 9999 is ran. If this option is specified, the provided file path or number is ignored if it exists.
+
 ## Design Approach
 We used C++ for this project since it contains a definition for a List ADT, so we used that to implement Queue data structures for our job queues. 
 
