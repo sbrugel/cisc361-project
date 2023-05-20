@@ -38,6 +38,30 @@ int main() {
     while (std::getline(infile, line)) {
         CommandInfo command = parseCommand(line);
 
+        // Handle this here, because we don't want to update the simulation if true
+        if (command.type == CommandType::SYSTEM) {
+            // Reset everything
+            auto info = std::get<CommandSystemInfo>(command.info);
+
+            hq1.clear();
+            hq2.clear();
+            readyQueue.clear();
+            waitQueue.clear();
+
+            // Setup system
+            system = System{};
+            system.time = command.time;
+            system.totalMemory = info.memoryAmount;
+            system.availableMemory = system.totalMemory;
+            system.totalDevices = info.deviceAmount;
+            system.availableDevices = system.totalDevices;
+            system.quantum = info.quantum;
+
+            // Next line!
+            continue;
+        }
+
+        // Update simulation to latest timestamp
         while (system.time < command.time) {
             system.time += 1;
             Job job{};
@@ -90,26 +114,9 @@ int main() {
 
         // Let's see what command it is!
         switch (command.type) {
-            case CommandType::SYSTEM: {
-                auto info = std::get<CommandSystemInfo>(command.info);
-
-                // reset queues
-                hq1.clear();
-                hq2.clear();
-                readyQueue.clear();
-                waitQueue.clear();
-
-                // setup system
-                system = System{};
-                system.time = command.time;
-                system.totalMemory = info.memoryAmount;
-                system.availableMemory = system.totalMemory;
-                system.totalDevices = info.deviceAmount;
-                system.availableDevices = system.totalDevices;
-                system.quantum = info.quantum;
-
+            case CommandType::SYSTEM:
+                // Handled earlier
                 break;
-            }
             case CommandType::NEW_JOB: {
                 auto info = std::get<CommandNewJobInfo>(command.info);
 
