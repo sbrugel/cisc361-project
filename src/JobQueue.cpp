@@ -173,7 +173,7 @@ void JobQueue::sortJobs() { // this sorts all the jobs based on the type of queu
  * This gets the sum of all jobs' turnaround times. Only works with the complete queue.
  * @returns The sum of the turnaround times
  */
-int JobQueue::getTurnarounds() {
+int JobQueue::getTurnarounds() const {
     if (sortType != JobQueueSortType::COMPLETE) {
         return 0; // can't get turnarounds of incomplete jobs
     }

@@ -21,7 +21,8 @@ add_executable(${PROJECT_NAME}
         ${CMAKE_CURRENT_LIST_DIR}/src/JobQueue.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/JobQueue.h
         ${CMAKE_CURRENT_LIST_DIR}/src/Main.cpp
-        )
+        ${CMAKE_CURRENT_LIST_DIR}/src/System.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/System.h)
 
 # Copy necessary files
 add_custom_target(${PROJECT_NAME}-Copy-Resources

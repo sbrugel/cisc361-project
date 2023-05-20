@@ -32,7 +32,7 @@ public:
     void push(Job job);
     void clear();
     [[nodiscard]] bool isEmpty() const;
-    [[nodiscard]] int getTurnarounds();
+    [[nodiscard]] int getTurnarounds() const;
     [[nodiscard]] int getNumJobs() const;
 
     explicit operator std::string() const;

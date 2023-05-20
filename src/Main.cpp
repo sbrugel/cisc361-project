@@ -3,29 +3,10 @@
 #include <string>
 
 #include "Commands.h"
-#include "Job.h"
-#include "JobQueue.h"
-
-struct System {
-    int time; // the current time; gets incremented
-    int totalMemory;
-    int availableMemory;
-    int totalDevices;
-    int availableDevices;
-    int quantum;
-};
+#include "System.h"
 
 int main() {
-    System system{};
-
-    JobQueue hq1{JobQueueSortType::SJF, "Hold Queue 1"};
-    JobQueue hq2{JobQueueSortType::FIFO, "Hold Queue 2"};
-
-    JobQueue readyQueue{JobQueueSortType::RR, "Ready Queue"};
-    JobQueue waitQueue{JobQueueSortType::RR, "Wait Queue"};
-    JobQueue cpuQueue{JobQueueSortType::NONE, "CPU Queue"};
-
-    JobQueue completeQueue{JobQueueSortType::COMPLETE, "Complete Queue"};
+    System s{};
 
     // reading the input to get all properties
     std::ifstream infile("../inputs/i0.txt");
@@ -43,71 +24,65 @@ int main() {
             // Reset everything
             auto info = std::get<CommandSystemInfo>(command.info);
 
-            hq1.clear();
-            hq2.clear();
-            readyQueue.clear();
-            waitQueue.clear();
-
-            // Setup system
-            system = System{};
-            system.time = command.time;
-            system.totalMemory = info.memoryAmount;
-            system.availableMemory = system.totalMemory;
-            system.totalDevices = info.deviceAmount;
-            system.availableDevices = system.totalDevices;
-            system.quantum = info.quantum;
+            s = System{};
+            s.time = command.time;
+            s.totalMemory = info.memoryAmount;
+            s.availableMemory = info.memoryAmount;
+            s.totalDevices = info.deviceAmount;
+            s.availableDevices = info.deviceAmount;
+            s.quantum = info.quantum;
 
             // Next line!
             continue;
         }
 
         // Update simulation to latest timestamp
-        while (system.time < command.time) {
-            system.time += 1;
+        while (s.time < command.time) {
+            s.time += 1;
             Job job{};
-            if (!hq1.isEmpty() || !hq2.isEmpty()) {
-                if (!hq1.isEmpty()) {
-                    Job pushFromHq1 = hq1.pop();
-                    if (system.availableMemory >= pushFromHq1.memoryRequired) {
-                        readyQueue.push(pushFromHq1);
-                        system.availableMemory -= pushFromHq1.memoryRequired;
+            if (!s.hq1.isEmpty() || !s.hq2.isEmpty()) {
+                if (!s.hq1.isEmpty()) {
+                    Job pushFromHq1 = s.hq1.pop();
+                    if (s.availableMemory >= pushFromHq1.memoryRequired) {
+                        s.readyQueue.push(pushFromHq1);
+                        s.availableMemory -= pushFromHq1.memoryRequired;
                     } else {
-                        hq1.push(pushFromHq1);
+                        s.hq1.push(pushFromHq1);
                     }
                 } else {
-                    Job pushFromHq2 = hq2.pop();
-                    if (system.availableMemory >= pushFromHq2.memoryRequired) {
-                        readyQueue.push(pushFromHq2);
-                        system.availableMemory -= pushFromHq2.memoryRequired;
+                    Job pushFromHq2 = s.hq2.pop();
+                    if (s.availableMemory >= pushFromHq2.memoryRequired) {
+                        s.readyQueue.push(pushFromHq2);
+                        s.availableMemory -= pushFromHq2.memoryRequired;
                     } else {
-                        hq1.push(pushFromHq2);
+                        s.hq1.push(pushFromHq2);
                     }
                 }
             }
-            if (cpuQueue.isEmpty() && !readyQueue.isEmpty()) {
-                job = readyQueue.pop();
-                cpuQueue.push(job);
+            if (s.cpuQueue.isEmpty() && !s.readyQueue.isEmpty()) {
+                job = s.readyQueue.pop();
+                s.cpuQueue.push(job);
             }
-            if (!cpuQueue.isEmpty()) {
-                if (job.quantumLeft == system.quantum && !cpuQueue.isEmpty()) {
+            if (!s.cpuQueue.isEmpty()) {
+                if (job.quantumLeft == s.quantum && !s.cpuQueue.isEmpty()) {
                     job.quantumLeft = 0;
-                    Job putBack = cpuQueue.pop();
+                    Job putBack = s.cpuQueue.pop();
                     putBack.currentTime = job.currentTime;
-                    readyQueue.push(putBack);
+                    s.readyQueue.push(putBack);
                 }
-                if (cpuQueue.isEmpty() && !readyQueue.isEmpty()) {
-                    job = readyQueue.pop();
-                    cpuQueue.push(job);
+                if (s.cpuQueue.isEmpty() && !s.readyQueue.isEmpty()) {
+                    job = s.readyQueue.pop();
+                    s.cpuQueue.push(job);
                 }
-                if (job.currentTime < job.runningTime && job.quantumLeft < system.quantum) {
+                if (job.currentTime < job.runningTime && job.quantumLeft < s.quantum) {
                     job.currentTime += 1;
                     job.quantumLeft += 1;
                 }
-                if (job.currentTime == job.runningTime && !cpuQueue.isEmpty()) {
-                    system.availableMemory += job.memoryRequired;
-                    Job completeJob = cpuQueue.pop();
-                    completeJob.finishTime = system.time;
-                    completeQueue.push(completeJob);
+                if (job.currentTime == job.runningTime && !s.cpuQueue.isEmpty()) {
+                    s.availableMemory += job.memoryRequired;
+                    Job completeJob = s.cpuQueue.pop();
+                    completeJob.finishTime = s.time;
+                    s.completeQueue.push(completeJob);
                 }
             }
         }
@@ -121,16 +96,16 @@ int main() {
                 auto info = std::get<CommandNewJobInfo>(command.info);
 
                 Job j{info.jobID, info.priority, command.time, info.executionTimeLength, info.memoryRequired, info.devicesRequired, 0, 0, -1};
-                if (j.memoryRequired > system.totalMemory || j.devicesRequired > system.totalDevices) {
+                if (j.memoryRequired > s.totalMemory || j.devicesRequired > s.totalDevices) {
                     break; // too much needed
                 }
 
                 if (j.priority == 1) {
                     // put in SJF
-                    hq1.push(j);
+                    s.hq1.push(j);
                 } else {
                     // put in FIFO
-                    hq2.push(j);
+                    s.hq2.push(j);
                 }
                 break;
             }
@@ -145,26 +120,7 @@ int main() {
                 break;
             }
             case CommandType::DISPLAY: {
-                std::cout << "At time " << command.time << ":" << std::endl;
-
-                std::cout << "Currently available main memory = " << system.availableMemory << ":" << std::endl;
-                std::cout << "Currently available devices = " << system.availableDevices << ":" << std::endl;
-
-                std::cout << std::string{completeQueue} << "\n" << std::endl;
-
-                std::cout << std::string{hq1} << "\n" << std::endl;
-                std::cout << std::string{hq2} << "\n" << std::endl;
-                std::cout << std::string{readyQueue} << "\n" << std::endl;
-                std::cout << "Process running on CPU:" << std::endl;
-                std::cout << "// TODO" << "\n"
-                          << std::endl; // todo: print job ID, time accrued, time left (runningTime - currentTime)
-                std::cout << std::string{waitQueue} << "\n" << std::endl;
-
-                if (command.time == 9999) { // only print turnaround at the very end
-                    std::cout << "System turnaround time: " << std::endl;
-                    std::cout << static_cast<float>(completeQueue.getTurnarounds()) / static_cast<float>(completeQueue.getNumJobs()) << std::endl;
-                    // we cast because if we don't, it just results in integer division
-                }
+                std::cout << s.prettyDisplay(command.time) << std::endl;
                 break;
             }
             default:
