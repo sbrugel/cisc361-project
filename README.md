@@ -20,7 +20,7 @@ If you have a working C++ IDE, feel free to use that. If not, run these commands
 
 `-h` - Print a help message and exit.
 
-`-f <path to file>` - Specify the full absolute path to an input file. (e.g. `/home/user/.../input.txt`)
+`-f <path to file>` - Specify the full absolute path to an input file. (e.g. `/home/user/.../input.txt`) Can also be relative to the executable. (e.g. `../inputs/input.txt`)
 
 `-f <input file number>` - Specify what input file to run. (0, 1, or 2)
 
