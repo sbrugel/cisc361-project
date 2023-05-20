@@ -103,16 +103,14 @@ JobQueue::operator std::string() const {
     }
     out += ": {\n";
 
-    for (const auto & it : this->queue) {
+    for (auto job : this->queue) {
         //out += "  " + std::string{*it} + ",\n";
         if (this->sortType == JobQueueSortType::FIFO || this->sortType == JobQueueSortType::SJF) {
-            out += "\tJob ID: " + std::to_string(it.id) + "\tRun Time: " + std::to_string(it.runningTime) + "\n";
-        }
-        else if  (this->sortType == JobQueueSortType::RR) {
-            out += "\tJob ID: " + std::to_string(it.id) + "\tRun Time: " + std::to_string(it.runningTime) + "\tTime Accrued: " + std::to_string(it.currentTime) + "\n";
-        }
-        else { // complete queue
-            out += "\tJob ID: " + std::to_string(it.id) + "\tArrival Time: " + std::to_string(it.arrivalTime) + "\tFinish Time: " + std::to_string(it.finishTime) + "\tTurnaround: " + std::to_string(it.finishTime - it.arrivalTime) + "\n";
+            out += "\tJob ID: " + std::to_string(job.id) + "\tRun Time: " + std::to_string(job.runningTime) + "\n";
+        } else if  (this->sortType == JobQueueSortType::RR) {
+            out += "\tJob ID: " + std::to_string(job.id) + "\tRun Time: " + std::to_string(job.runningTime) + "\tTime Accrued: " + std::to_string(job.currentTime) + "\n";
+        } else { // complete queue
+            out += "\tJob ID: " + std::to_string(job.id) + "\tArrival Time: " + std::to_string(job.arrivalTime) + "\tFinish Time: " + std::to_string(job.finishTime) + "\tTurnaround: " + std::to_string(job.finishTime - job.arrivalTime) + "\n";
         }
     }
     out += "}";

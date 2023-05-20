@@ -16,7 +16,7 @@ enum class JobQueueSortType {
     FIFO,
     SJF,
     RR,
-    COMPLETE,
+    COMPLETE, // Admittedly this one doesn't make much sense as a sort type but it works well
     NONE
 };
 
