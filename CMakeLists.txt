@@ -12,7 +12,8 @@ add_executable(${PROJECT_NAME}
 
         ${CMAKE_CURRENT_LIST_DIR}/src/utility/String.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/utility/String.h
-
+        ${CMAKE_CURRENT_LIST_DIR}/src/Bankers.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/Bankers.h
         ${CMAKE_CURRENT_LIST_DIR}/src/Commands.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/Commands.h
         ${CMAKE_CURRENT_LIST_DIR}/src/Job.cpp
