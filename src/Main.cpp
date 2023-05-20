@@ -40,7 +40,7 @@ std::unique_ptr<IInput> getInput(const int argc, const char* const argv[]) {
     } else if (optionExists(argc, argv, "-f")) {
         auto value = getOptionValue(argc, argv, "-f");
         if (value == "0" || value == "1" || value == "2") {
-            return std::make_unique<FileInput>(string::format("../inputs/i%s.txt", value));
+            return std::make_unique<FileInput>(string::format("../inputs/i%d.txt", std::stoi(value.data())));
         }
         return std::make_unique<FileInput>(value);
     }
