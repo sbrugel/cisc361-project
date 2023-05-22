@@ -57,7 +57,7 @@ void printHelp() {
     std::vector<int> max;
     std::vector<int> available;
 
-    for (Job job : s.cpuQueue) {
+    for (Job job : s.readyQueue) {
         available.push_back(job.devicesRequired);
         if (job.id == info.jobID) {
             // NOTE: THIS DOES NOT UPDATE THE JOB IN THE QUEUE!!
@@ -120,26 +120,45 @@ int main(const int argc, const char* const argv[]) {
             // Next line!
             continue;
         }
+        int timeBreak;
+        if (command.type == CommandType::DEVICE_REQUEST){
+            timeBreak = command.time;
+        }
 
         // Update simulation to latest timestamp
         while (s.time < command.time) {
             s.time += 1;
+            if (s.time == timeBreak){
+                break;
+            }
+            /*if (!s.waitQueue.isEmpty()){
+                for (auto job : s.waitQueue){
+                    bool safe = isQueueSafeAfterAddingJob(s.readyQueue, job, s.totalDevices);
+                    if (safe) {
+                        s.readyQueue.push(job);
+                        waitQueue.remove(job.id);
+                    }
+                }
+            }
+             */
             if (!s.hq1.isEmpty() || !s.hq2.isEmpty()) {
                 if (!s.hq1.isEmpty()) {
                     Job pushFromHq1 = s.hq1.pop();
-                    if (s.availableMemory >= pushFromHq1.memoryRequired) {
+                    if (s.availableMemory >= pushFromHq1.memoryRequired && s.availableDevices>= pushFromHq1.devicesRequired) {
                         s.readyQueue.push(pushFromHq1);
+                        s.availableDevices -= pushFromHq1.devicesRequired;
                         s.availableMemory -= pushFromHq1.memoryRequired;
                     } else {
                         s.hq1.push(pushFromHq1);
                     }
                 } else {
                     Job pushFromHq2 = s.hq2.pop();
-                    if (s.availableMemory >= pushFromHq2.memoryRequired) {
+                    if (s.availableMemory >= pushFromHq2.memoryRequired && s.availableDevices>= pushFromHq2.devicesRequired) {
                         s.readyQueue.push(pushFromHq2);
+                        s.availableDevices -= pushFromHq2.devicesRequired;
                         s.availableMemory -= pushFromHq2.memoryRequired;
                     } else {
-                        s.hq1.push(pushFromHq2);
+                        s.hq2.push(pushFromHq2);
                     }
                 }
             }
@@ -168,6 +187,7 @@ int main(const int argc, const char* const argv[]) {
                 if (job.currentTime == job.runningTime && !s.cpuQueue.isEmpty()) {
                     Job completeJob = s.cpuQueue.pop();
                     s.availableMemory += completeJob.memoryRequired;
+                    s.availableDevices += completeJob.devicesRequired;
                     completeJob.finishTime = s.time;
                     s.completeQueue.push(completeJob);
                 }
@@ -197,8 +217,37 @@ int main(const int argc, const char* const argv[]) {
                 break;
             }
             case CommandType::DEVICE_REQUEST: {
+
                 auto info = std::get<CommandDeviceRequestInfo>(command.info);
-                // todo: do stuff with device request command
+
+                if(!s.cpuQueue.isEmpty()){
+                    Job process = s.cpuQueue.pop();
+                    s.readyQueue.push(process);
+                }
+                bool safe = isSystemSafeAfterDeviceRequest(s, info);
+                if (safe){
+                    for (auto job : s.readyQueue){
+                        if (job.id == info.jobID){
+                            s.readyQueue.remove(info.jobID);
+                            job.devicesRequired += info.devicesRequested;
+                            s.availableDevices -= info.devicesRequested;
+                            s.readyQueue.push(job);
+                            break;
+                        }
+                    }
+                    std::cout << std::string{s.readyQueue} << "time: "<< s.time << "\n";
+                }
+                else if (!safe){
+                    for (auto job : s.readyQueue){
+                        if (job.id == info.jobID){
+                            s.readyQueue.remove(info.jobID);
+                            if (job.devicesRequired + info.devicesRequested < s.totalDevices){
+                                job.devicesRequired += info.devicesRequested;
+                            }
+                            s.waitQueue.push(job);
+                        }
+                    }
+                }
                 break;
             }
             case CommandType::DEVICE_RELEASE: {
