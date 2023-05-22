@@ -30,6 +30,7 @@ public:
 
     [[nodiscard]] int getTotalMemoryRequired() const;
     [[nodiscard]] int getTotalDevicesRequired() const;
+    [[nodiscard]] int getTotalDevicesHeld() const;
 
     Job pop();
     [[nodiscard]] Job peek();

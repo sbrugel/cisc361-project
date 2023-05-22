@@ -9,6 +9,7 @@ struct Job {
     int runningTime;
     int memoryRequired;
     int devicesRequired;
+    int devicesHeld;
     int currentTime;
     int quantumLeft;
     int finishTime;

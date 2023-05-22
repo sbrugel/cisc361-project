@@ -30,6 +30,14 @@ JobQueue::JobQueue(JobQueueSortType jobQueueSortType, std::string_view name_)
     return dev;
 }
 
+[[nodiscard]] int JobQueue::getTotalDevicesHeld() const {
+    int dev = 0;
+    for (auto job : this->queue) {
+        dev += job.devicesHeld;
+    }
+    return dev;
+}
+
 /**
  * Removes the Job object at the front of the queue, and returns it.
  * @return The Job at the front most position
@@ -120,7 +128,7 @@ JobQueue::operator std::string() const {
         if (this->sortType == JobQueueSortType::FIFO || this->sortType == JobQueueSortType::SJF) {
             out += "\tJob ID: " + std::to_string(job.id) + "\tRun Time: " + std::to_string(job.runningTime) + "\n";
         } else if  (this->sortType == JobQueueSortType::RR) {
-            out += "\tJob ID: " + std::to_string(job.id) + "\tRun Time: " + std::to_string(job.runningTime) + "\tTime Accrued: " + std::to_string(job.currentTime) + "\tdevices required: " + std::to_string(job.devicesRequired) + "\n";
+            out += "\tJob ID: " + std::to_string(job.id) + "\tRun Time: " + std::to_string(job.runningTime) + "\tTime Accrued: " + std::to_string(job.currentTime) + "\tdevices required: " + std::to_string(job.devicesRequired) + "\tdevices held: " + std::to_string(job.devicesHeld) + "\n";
         } else if (this->sortType == JobQueueSortType::COMPLETE) { // complete queue
             out += "\tJob ID: " + std::to_string(job.id) + "\tArrival Time: " + std::to_string(job.arrivalTime) + "\tFinish Time: " + std::to_string(job.finishTime) + "\tTurnaround: " + std::to_string(job.finishTime - job.arrivalTime) + "\n";
         } else {
