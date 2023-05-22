@@ -120,7 +120,7 @@ int main(const int argc, const char* const argv[]) {
             // Next line!
             continue;
         }
-        int timeBreak;
+        int timeBreak = 0;
         if (command.type == CommandType::DEVICE_REQUEST){
             timeBreak = command.time;
         }
@@ -128,7 +128,7 @@ int main(const int argc, const char* const argv[]) {
         // Update simulation to latest timestamp
         while (s.time < command.time) {
             s.time += 1;
-            if (s.time == timeBreak){
+            if (s.time == timeBreak) {
                 break;
             }
             /*if (!s.waitQueue.isEmpty()){
