@@ -120,7 +120,7 @@ JobQueue::operator std::string() const {
         if (this->sortType == JobQueueSortType::FIFO || this->sortType == JobQueueSortType::SJF) {
             out += "\tJob ID: " + std::to_string(job.id) + "\tRun Time: " + std::to_string(job.runningTime) + "\n";
         } else if  (this->sortType == JobQueueSortType::RR) {
-            out += "\tJob ID: " + std::to_string(job.id) + "\tRun Time: " + std::to_string(job.runningTime) + "\tTime Accrued: " + std::to_string(job.currentTime) + "\n";
+            out += "\tJob ID: " + std::to_string(job.id) + "\tRun Time: " + std::to_string(job.runningTime) + "\tTime Accrued: " + std::to_string(job.currentTime) + "\tdevices required: " + std::to_string(job.devicesRequired) + "\n";
         } else if (this->sortType == JobQueueSortType::COMPLETE) { // complete queue
             out += "\tJob ID: " + std::to_string(job.id) + "\tArrival Time: " + std::to_string(job.arrivalTime) + "\tFinish Time: " + std::to_string(job.finishTime) + "\tTurnaround: " + std::to_string(job.finishTime - job.arrivalTime) + "\n";
         } else {
