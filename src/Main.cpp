@@ -120,8 +120,9 @@ int main(const int argc, const char* const argv[]) {
             // Next line!
             continue;
         }
+
         int timeBreak = 0;
-        if (command.type == CommandType::DEVICE_REQUEST){
+        if (command.type == CommandType::DEVICE_REQUEST) {
             timeBreak = command.time;
         }
 
@@ -181,8 +182,8 @@ int main(const int argc, const char* const argv[]) {
                     s.readyQueue.push(putBack);
                 }
                 if (s.cpuQueue.isEmpty() && !s.readyQueue.isEmpty()) {
-                    Job job = s.readyQueue.pop();
-                    s.cpuQueue.push(job);
+                    Job j = s.readyQueue.pop();
+                    s.cpuQueue.push(j);
                 }
                 if (job.currentTime == job.runningTime && !s.cpuQueue.isEmpty()) {
                     Job completeJob = s.cpuQueue.pop();
@@ -217,17 +218,16 @@ int main(const int argc, const char* const argv[]) {
                 break;
             }
             case CommandType::DEVICE_REQUEST: {
-
                 auto info = std::get<CommandDeviceRequestInfo>(command.info);
 
-                if(!s.cpuQueue.isEmpty()){
+                if (!s.cpuQueue.isEmpty()) {
                     Job process = s.cpuQueue.pop();
                     s.readyQueue.push(process);
                 }
                 bool safe = isSystemSafeAfterDeviceRequest(s, info);
-                if (safe){
-                    for (auto job : s.readyQueue){
-                        if (job.id == info.jobID){
+                if (safe) {
+                    for (auto job : s.readyQueue) {
+                        if (job.id == info.jobID) {
                             s.readyQueue.remove(info.jobID);
                             job.devicesRequired += info.devicesRequested;
                             s.availableDevices -= info.devicesRequested;
@@ -236,12 +236,11 @@ int main(const int argc, const char* const argv[]) {
                         }
                     }
                     std::cout << std::string{s.readyQueue} << "time: "<< s.time << "\n";
-                }
-                else if (!safe){
-                    for (auto job : s.readyQueue){
-                        if (job.id == info.jobID){
+                } else {
+                    for (auto job: s.readyQueue) {
+                        if (job.id == info.jobID) {
                             s.readyQueue.remove(info.jobID);
-                            if (job.devicesRequired + info.devicesRequested < s.totalDevices){
+                            if (job.devicesRequired + info.devicesRequested < s.totalDevices) {
                                 job.devicesRequired += info.devicesRequested;
                             }
                             s.waitQueue.push(job);
