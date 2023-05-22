@@ -79,6 +79,10 @@ bool JobQueue::isEmpty() const{
  */
 JobQueue::operator std::string() const {
     std::string out = this->name;
+    if (this->sortType == JobQueueSortType::NONE) {
+        // cpu queue
+        out = "Currently running job";
+    }
     switch (this->sortType) {
         case JobQueueSortType::FIFO:
             out += " (FIFO)";
@@ -109,8 +113,10 @@ JobQueue::operator std::string() const {
             out += "\tJob ID: " + std::to_string(job.id) + "\tRun Time: " + std::to_string(job.runningTime) + "\n";
         } else if  (this->sortType == JobQueueSortType::RR) {
             out += "\tJob ID: " + std::to_string(job.id) + "\tRun Time: " + std::to_string(job.runningTime) + "\tTime Accrued: " + std::to_string(job.currentTime) + "\n";
-        } else { // complete queue
+        } else if (this->sortType == JobQueueSortType::COMPLETE) { // complete queue
             out += "\tJob ID: " + std::to_string(job.id) + "\tArrival Time: " + std::to_string(job.arrivalTime) + "\tFinish Time: " + std::to_string(job.finishTime) + "\tTurnaround: " + std::to_string(job.finishTime - job.arrivalTime) + "\n";
+        } else {
+            out += "\tJob ID: " + std::to_string(job.id) + "\tTime Accrued: " + std::to_string(job.currentTime) + "\tTime Left: " + std::to_string(job.runningTime - job.currentTime) + "\n";
         }
     }
     out += "}";

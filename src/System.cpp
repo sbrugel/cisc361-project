@@ -14,7 +14,7 @@ std::string System::prettyDisplay(int currentTime) const {
     out += std::string{this->hq2} + '\n';
     out += std::string{this->readyQueue} + '\n';
 
-    out += "Process running on CPU: // TODO\n"; // todo: print job ID, time accrued, time left (runningTime - currentTime)
+    out += std::string{this->cpuQueue} + "\n";
     out += std::string{this->waitQueue} + '\n';
 
     // Only print turnaround at the very end of a simulation
