@@ -50,8 +50,7 @@ void printHelp() {
 }
 
 [[nodiscard]] bool isSystemSafeAfterDeviceRequest(const System& s, CommandDeviceRequestInfo info) {
-    int devicesFree = s.totalDevices - s.availableDevices;
-    if (devicesFree < info.devicesRequested)
+    if (s.availableDevices < info.devicesRequested)
         return false;
 
     std::vector<int> max;
@@ -66,7 +65,7 @@ void printHelp() {
         max.push_back(job.devicesRequired);
     }
 
-    return reducedBankers(max, available, devicesFree);
+    return reducedBankers(max, available, s.availableDevices);
 }
 
 [[nodiscard]] bool isQueueSafeAfterAddingJob(const JobQueue& queue, Job j, int totalDevices) {
@@ -237,7 +236,8 @@ int main(const int argc, const char* const argv[]) {
                     }
                     std::cout << std::string{s.readyQueue} << "time: "<< s.time << "\n";
                 } else {
-                    for (auto job: s.readyQueue) {
+                    auto rqCopy = s.readyQueue;
+                    for (auto job : rqCopy) {
                         if (job.id == info.jobID) {
                             s.readyQueue.remove(info.jobID);
                             if (job.devicesRequired + info.devicesRequested < s.totalDevices) {

@@ -23,6 +23,10 @@ enum class JobQueueSortType {
 class JobQueue {
 public:
     JobQueue(JobQueueSortType jobQueueSortType, std::string_view name_);
+    JobQueue(const JobQueue& other) = default;
+    JobQueue& operator=(const JobQueue& other) = default;
+    JobQueue(JobQueue&& other) = default;
+    JobQueue& operator=(JobQueue&& other) = default;
 
     [[nodiscard]] int getTotalMemoryRequired() const;
     [[nodiscard]] int getTotalDevicesRequired() const;
