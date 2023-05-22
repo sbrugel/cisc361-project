@@ -59,6 +59,14 @@ void JobQueue::push(Job job) {
 }
 
 /**
+ * Removes a job that has the given ID
+ * @param jobID The ID of the job to remove
+ */
+void JobQueue::remove(int jobID) {
+    this->queue.remove_if([jobID](Job job) { return job.id == jobID; });
+}
+
+/**
  * Removes all jobs from the queue.
  */
 void JobQueue::clear() {

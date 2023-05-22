@@ -30,6 +30,7 @@ public:
     Job pop();
     [[nodiscard]] Job peek();
     void push(Job job);
+    void remove(int jobID);
     void clear();
     [[nodiscard]] bool isEmpty() const;
     [[nodiscard]] int getTurnarounds() const;
