@@ -9,4 +9,4 @@
  * @param available The amount of the resource that is not dedicated to a particular process
  * @return If the system is in a safe state in the current configuration
  */
-[[nodiscard]] bool reducedBankers(std::vector<int>& max, std::vector<int>& allocated, int available);
+[[nodiscard]] bool reducedBankers(const std::vector<int>& max, const std::vector<int>& allocated, int available);

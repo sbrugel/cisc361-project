@@ -35,6 +35,11 @@ public:
     [[nodiscard]] int getTurnarounds() const;
     [[nodiscard]] int getNumJobs() const;
 
+    [[nodiscard]] inline auto begin() const noexcept { return this->queue.begin(); }
+    [[nodiscard]] inline auto begin() noexcept { return this->queue.begin(); }
+    [[nodiscard]] inline auto end() const noexcept { return this->queue.end(); }
+    [[nodiscard]] inline auto end() noexcept { return this->queue.end(); }
+
     explicit operator std::string() const;
 
 protected:

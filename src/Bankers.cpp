@@ -1,6 +1,6 @@
 #include "Bankers.h"
 
-bool reducedBankers(std::vector<int>& max, std::vector<int>& allocated, int available) {
+bool reducedBankers(const std::vector<int>& max, const std::vector<int>& allocated, int available) {
     auto numProcesses = static_cast<int>(max.size());
     int work = available;
     std::vector<int> need(numProcesses);
