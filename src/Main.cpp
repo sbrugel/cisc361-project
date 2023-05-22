@@ -149,20 +149,20 @@ int main(const int argc, const char* const argv[]) {
             }
             if (!s.cpuQueue.isEmpty()) {
                 Job job = s.cpuQueue.peek();
-                if (job.quantumLeft == s.quantum && !s.cpuQueue.isEmpty()) {
+                if (job.currentTime < job.runningTime && job.quantumLeft < s.quantum) {
+                    job = s.cpuQueue.pop();
+                    job.currentTime += 1;
+                    job.quantumLeft += 1;
+                    s.cpuQueue.push(job);
+                }
+                if (job.quantumLeft == s.quantum && !s.cpuQueue.isEmpty() && job.currentTime != job.runningTime) {
                     Job putBack = s.cpuQueue.pop();
                     putBack.quantumLeft = 0;
                     putBack.currentTime = job.currentTime;
                     s.readyQueue.push(putBack);
                 }
                 if (s.cpuQueue.isEmpty() && !s.readyQueue.isEmpty()) {
-                    job = s.readyQueue.pop();
-                    s.cpuQueue.push(job);
-                }
-                if (job.currentTime < job.runningTime && job.quantumLeft < s.quantum) {
-                    job = s.cpuQueue.pop();
-                    job.currentTime += 1;
-                    job.quantumLeft += 1;
+                    Job job = s.readyQueue.pop();
                     s.cpuQueue.push(job);
                 }
                 if (job.currentTime == job.runningTime && !s.cpuQueue.isEmpty()) {
