@@ -3,10 +3,12 @@
 #include <memory>
 
 #include "utility/String.h"
+#include "Bankers.h"
 #include "Commands.h"
 #include "Input.h"
 #include "System.h"
 
+// Anonymous namespace = TU-local methods
 namespace {
 
 void printHelp() {
@@ -18,7 +20,7 @@ void printHelp() {
                  "-i : Interactive mode\n" << std::endl;
 }
 
-std::string_view getOptionValue(const int argc, const char* const argv[], std::string_view option, std::string_view default_ = "") {
+[[nodiscard]] std::string_view getOptionValue(const int argc, const char* const argv[], std::string_view option, std::string_view default_ = "") {
     auto end = argv + argc;
     auto it = std::find(argv, end, option);
     if (it != end && ++it != end) {
@@ -27,11 +29,11 @@ std::string_view getOptionValue(const int argc, const char* const argv[], std::s
     return default_;
 }
 
-bool optionExists(const int argc, const char* const argv[], std::string_view option) {
+[[nodiscard]] bool optionExists(const int argc, const char* const argv[], std::string_view option) {
     return std::find(argv, argv + argc, option) != (argv + argc);
 }
 
-std::unique_ptr<IInput> getInput(const int argc, const char* const argv[]) {
+[[nodiscard]] std::unique_ptr<IInput> getInput(const int argc, const char* const argv[]) {
     if (optionExists(argc, argv, "-h")) {
         printHelp();
         exit(EXIT_SUCCESS);
@@ -45,6 +47,44 @@ std::unique_ptr<IInput> getInput(const int argc, const char* const argv[]) {
         return std::make_unique<FileInput>(value);
     }
     return nullptr;
+}
+
+[[nodiscard]] bool isSystemSafeAfterDeviceRequest(const System& s, CommandDeviceRequestInfo info) {
+    int devicesFree = s.totalDevices - s.availableDevices;
+    if (devicesFree < info.devicesRequested)
+        return false;
+
+    std::vector<int> max;
+    std::vector<int> available;
+
+    for (Job job : s.cpuQueue) {
+        available.push_back(job.devicesRequired);
+        if (job.id == info.jobID) {
+            // NOTE: THIS DOES NOT UPDATE THE JOB IN THE QUEUE!!
+            job.devicesRequired += info.devicesRequested;
+        }
+        max.push_back(job.devicesRequired);
+    }
+
+    return reducedBankers(max, available, devicesFree);
+}
+
+[[nodiscard]] bool isQueueSafeAfterAddingJob(const JobQueue& queue, Job j, int totalDevices) {
+    int freeDevices = totalDevices - queue.getTotalDevicesRequired() - j.devicesRequired;
+    if (freeDevices < 0)
+        return false;
+
+    std::vector<int> max;
+    std::vector<int> available;
+
+    for (Job job : queue) {
+        available.push_back(job.devicesRequired);
+        max.push_back(job.devicesRequired);
+    }
+    available.push_back(0);
+    max.push_back(j.devicesRequired);
+
+    return reducedBankers(max, available, freeDevices);
 }
 
 } // namespace
