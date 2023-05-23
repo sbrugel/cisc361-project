@@ -102,6 +102,7 @@ int main(const int argc, const char* const argv[]) {
         return EXIT_FAILURE;
     }
 
+    bool firstJob = true;
     while (auto next = input->nextLine()) {
         std::string line = *next;
         CommandInfo command = parseCommand(line);
@@ -118,12 +119,13 @@ int main(const int argc, const char* const argv[]) {
             s.totalDevices = info.deviceAmount;
             s.availableDevices = info.deviceAmount;
             s.quantum = info.quantum;
+            firstJob = true;
 
             // Next line!
             continue;
         }
 
-        int timeBreak = 0;
+        int timeBreak = -1;
         if (command.type == CommandType::DEVICE_REQUEST || command.type == CommandType::DEVICE_RELEASE) {
             timeBreak = command.time;
         }
@@ -168,9 +170,6 @@ int main(const int argc, const char* const argv[]) {
                 Job job = s.readyQueue.pop();
                 s.cpuQueue.push(job);
             }
-            if (s.time == timeBreak) {
-                break;
-            }
             if (!s.cpuQueue.isEmpty()) {
                 Job job = s.cpuQueue.peek();
                 if (job.currentTime < job.runningTime && job.quantumLeft < s.quantum) {
@@ -197,6 +196,13 @@ int main(const int argc, const char* const argv[]) {
                     s.completeQueue.push(completeJob);
                 }
             }
+            if (s.time == timeBreak) {
+                break;
+            }
+        }
+        if(firstJob){
+            s.time -= 1;
+            firstJob = false;
         }
 
         // Let's see what command it is!
@@ -230,32 +236,12 @@ int main(const int argc, const char* const argv[]) {
                 }
                 bool safe = isSystemSafeAfterDeviceRequest(s, info);
                 if (safe) {
-                    /*for (auto job : s.readyQueue) {
-                        if (job.id == info.jobID) {
-                            s.readyQueue.remove(info.jobID);
-                            job.devicesRequired += info.devicesRequested;
-                            s.availableDevices -= info.devicesRequested;
-                            s.readyQueue.push(job);
-                            break;
-                        }
-                    }
-                     */
+                    process.quantumLeft = 0;
                     process.devicesHeld += info.devicesRequested;
                     s.availableDevices -= info.devicesRequested;
                     s.readyQueue.push(process);
                 }
                 else {
-                    /*auto rqCopy = s.readyQueue;
-                    for (auto job : rqCopy) {
-                        if (job.id == info.jobID) {
-                            s.readyQueue.remove(info.jobID);
-                            if (job.devicesRequired + info.devicesRequested < s.totalDevices) {
-                                job.devicesRequired += info.devicesRequested;
-                            }
-                            s.waitQueue.push(job);
-                        }
-                    }
-                     */
                     process.devicesHeld = info.devicesRequested;
                     s.waitQueue.push(process);
                 }
