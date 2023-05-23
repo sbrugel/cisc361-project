@@ -68,9 +68,8 @@ void printHelp() {
     return reducedBankers(max, available, s.availableDevices);
 }
 
-[[nodiscard]] bool isQueueSafeAfterAddingJob(const JobQueue& queue, Job j, int totalDevices) {
-    int freeDevices = totalDevices - queue.getTotalDevicesHeld() - j.devicesHeld;
-
+[[nodiscard]] bool isQueueSafeAfterAddingJob(const System& s, const JobQueue& queue, Job j, int totalDevices) {
+    int freeDevices = totalDevices - s.cpuQueue.getTotalDevicesHeld() - queue.getTotalDevicesHeld() - j.devicesHeld;
 
     if (freeDevices < 0) {
         return false;
@@ -136,7 +135,7 @@ int main(const int argc, const char* const argv[]) {
             if (!s.waitQueue.isEmpty()){
                 auto wQCopy = s.waitQueue;
                 for (auto job : wQCopy){
-                    bool safe = isQueueSafeAfterAddingJob(s.readyQueue, job, s.totalDevices);
+                    bool safe = isQueueSafeAfterAddingJob(s, s.readyQueue, job, s.totalDevices);
                     if (safe) {
                         s.readyQueue.push(job);
                         s.availableDevices -= job.devicesHeld;
@@ -177,6 +176,7 @@ int main(const int argc, const char* const argv[]) {
                     job.currentTime += 1;
                     job.quantumLeft += 1;
                     s.cpuQueue.push(job);
+                    std::cout << std::string{s.readyQueue} << "time: " << s.time << "\n";
                 }
                 if (job.quantumLeft == s.quantum && !s.cpuQueue.isEmpty() && job.currentTime != job.runningTime) {
                     Job putBack = s.cpuQueue.pop();
