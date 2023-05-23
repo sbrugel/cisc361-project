@@ -176,7 +176,6 @@ int main(const int argc, const char* const argv[]) {
                     job.currentTime += 1;
                     job.quantumLeft += 1;
                     s.cpuQueue.push(job);
-                    std::cout << std::string{s.readyQueue} << "time: " << s.time << "\n";
                 }
                 if (job.quantumLeft == s.quantum && !s.cpuQueue.isEmpty() && job.currentTime != job.runningTime) {
                     Job putBack = s.cpuQueue.pop();
