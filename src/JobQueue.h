@@ -1,7 +1,3 @@
-//
-// Created by Simon on 5/3/2023.
-//
-
 #pragma once
 
 #include <algorithm>
@@ -41,6 +37,7 @@ public:
     [[nodiscard]] int getTurnarounds() const;
     [[nodiscard]] int getNumJobs() const;
 
+    /// Used in for-each constructs
     [[nodiscard]] inline auto begin() const noexcept { return this->queue.begin(); }
     [[nodiscard]] inline auto begin() noexcept { return this->queue.begin(); }
     [[nodiscard]] inline auto end() const noexcept { return this->queue.end(); }

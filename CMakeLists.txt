@@ -7,11 +7,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Make executable
 add_executable(${PROJECT_NAME}
-        # Put files you want to build (.h, .cpp) in this list using this format
-        # No semicolons, just newlines
-
-        ${CMAKE_CURRENT_LIST_DIR}/src/utility/String.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/src/utility/String.h
         ${CMAKE_CURRENT_LIST_DIR}/src/Bankers.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/Bankers.h
         ${CMAKE_CURRENT_LIST_DIR}/src/Commands.cpp
@@ -22,6 +17,8 @@ add_executable(${PROJECT_NAME}
         ${CMAKE_CURRENT_LIST_DIR}/src/JobQueue.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/JobQueue.h
         ${CMAKE_CURRENT_LIST_DIR}/src/Main.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/String.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/String.h
         ${CMAKE_CURRENT_LIST_DIR}/src/System.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/System.h)
 

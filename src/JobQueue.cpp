@@ -1,5 +1,5 @@
 #include "JobQueue.h"
-#include "Job.h"
+
 #include <string>
 
 JobQueue::JobQueue(JobQueueSortType jobQueueSortType, std::string_view name_)

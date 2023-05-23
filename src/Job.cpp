@@ -1,6 +1,6 @@
 #include "Job.h"
 
-#include "utility/String.h"
+#include "String.h"
 
 /**
  * A toString function for the Job. Used only for debugging.

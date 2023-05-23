@@ -2,17 +2,19 @@
 #include <cstdlib>
 #include <memory>
 
-#include "utility/String.h"
 #include "Bankers.h"
 #include "Commands.h"
 #include "Input.h"
+#include "String.h"
 #include "System.h"
 
 // Anonymous namespace = TU-local methods
+// This is a collection of miscellaneous helper functions used in the main function
 namespace {
-    /**
-     * Prints a help message. Only appears if the file is ran with the -h (or invalid) argument
-     */
+
+/**
+ * Prints a help message. Only appears if the file is ran with the -h (or invalid) argument
+ */
 void printHelp() {
     std::cout << "--- CISC361 Term Project ---\n"
                  "Options:\n"
@@ -22,6 +24,14 @@ void printHelp() {
                  "-i : Interactive mode\n" << std::endl;
 }
 
+/**
+ * Get the value passed after a command-line option
+ * @param argc Number of arguments
+ * @param argv List of arguments
+ * @param option The argument before the passed value
+ * @param default_ A value to return if the option is not present
+ * @return The option value if present, else default_
+ */
 [[nodiscard]] std::string_view getOptionValue(const int argc, const char* const argv[], std::string_view option, std::string_view default_ = "") {
     auto end = argv + argc;
     auto it = std::find(argv, end, option);
@@ -31,19 +41,36 @@ void printHelp() {
     return default_;
 }
 
+/**
+ * Does an option exist on the command line?
+ * @param argc Number of arguments
+ * @param argv List of arguments
+ * @param option The argument to check for
+ * @return True if the argument/option exists
+ */
 [[nodiscard]] bool optionExists(const int argc, const char* const argv[], std::string_view option) {
     return std::find(argv, argv + argc, option) != (argv + argc);
 }
 
+/**
+ * Figure out what input type to use to read input with
+ * @param argc Number of arguments
+ * @param argv List of arguments
+ * @return The object to read input from
+ */
 [[nodiscard]] std::unique_ptr<IInput> getInput(const int argc, const char* const argv[]) {
     if (optionExists(argc, argv, "-h")) {
+        // Print help and exit
         printHelp();
         exit(EXIT_SUCCESS);
     } else if (optionExists(argc, argv, "-i")) {
+        // Interactive mode
         return std::make_unique<TerminalInput>();
     } else if (optionExists(argc, argv, "-f")) {
+        // File mode
         auto value = getOptionValue(argc, argv, "-f");
         if (value == "0" || value == "1" || value == "2") {
+            // Read a prepackaged file
             return std::make_unique<FileInput>(string::format("../inputs/i%d.txt", std::stoi(value.data())));
         }
         return std::make_unique<FileInput>(value);
@@ -79,13 +106,11 @@ void printHelp() {
 /**
  * Checks if the ready queue is safe if a job is added to the wait queue
  * @param s The system
- * @param queue The queue to check
  * @param j The job to be added
- * @param totalDevices The number of devices on the system
  * @return True if safe
  */
-[[nodiscard]] bool isQueueSafeAfterAddingJob(const System& s, const JobQueue& queue, Job j, int totalDevices) {
-    int freeDevices = totalDevices - s.cpuQueue.getTotalDevicesHeld() - queue.getTotalDevicesHeld() - j.devicesHeld;
+[[nodiscard]] bool isSystemSafeAfterAddingJob(const System& s, Job j) {
+    int freeDevices = s.totalDevices - s.cpuQueue.getTotalDevicesHeld() - s.readyQueue.getTotalDevicesHeld() - j.devicesHeld;
 
     if (freeDevices < 0) {
         return false;
@@ -94,7 +119,7 @@ void printHelp() {
     std::vector<int> max;
     std::vector<int> available;
 
-    for (Job job : queue) {
+    for (Job job : s.readyQueue) {
         available.push_back(job.devicesRequired);
         max.push_back(job.devicesRequired);
     }
@@ -153,13 +178,11 @@ int main(const int argc, const char* const argv[]) {
             if (!s.waitQueue.isEmpty()){ // there are jobs in the wait queue - look here first
                 auto wQCopy = s.waitQueue;
                 for (auto job : wQCopy){ // loop through all jobs in the wait queue
-                    bool safe = isQueueSafeAfterAddingJob(s, s.readyQueue, job, s.totalDevices);
-                    if (safe) { // can we add this wait queue job to the ready queue?
+                    if (isSystemSafeAfterAddingJob(s, job)) { // can we add this wait queue job to the ready queue?
                         s.readyQueue.push(job);
                         s.availableDevices -= job.devicesHeld;
                         s.waitQueue.remove(job.id);
-                    }
-                    else {
+                    } else {
                         s.readyQueue.remove(job.id);
                     }
                 }

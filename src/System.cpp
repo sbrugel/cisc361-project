@@ -1,6 +1,6 @@
 #include "System.h"
 
-#include "utility/String.h"
+#include "String.h"
 
 /**
  * Just puts the system info in a long, tidy string

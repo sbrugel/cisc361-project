@@ -6,6 +6,9 @@
 #include <string>
 #include <string_view>
 
+/**
+ * Base input class
+ */
 class IInput {
 public:
     virtual ~IInput() = default;
@@ -13,6 +16,9 @@ public:
     [[nodiscard]] virtual std::optional<std::string> nextLine() = 0;
 };
 
+/**
+ * Read input from a file
+ */
 class FileInput : public IInput {
 public:
     explicit FileInput(std::string_view filepath)
@@ -34,6 +40,9 @@ private:
     std::ifstream file;
 };
 
+/**
+ * Read input from the terminal
+ */
 class TerminalInput : public IInput {
 public:
     TerminalInput() = default;

@@ -1,6 +1,6 @@
 #include "Commands.h"
 
-#include "utility/String.h"
+#include "String.h"
 
 CommandType charToCommandType(char c) {
     switch (c) {
