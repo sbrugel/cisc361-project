@@ -77,5 +77,4 @@ The following images are our console output for each sample input file.
 ![img](https://i.imgur.com/PFOrdYY.png)
 
 ## Reflection
-I feel like we made a good choice using C++ since we didn't have to implement many basic yet time-consuming things on our own such as Lists. Merging all the queues into one class was also advantageous since it
-allows for more modularity and readable, less, non-repeated code.
+I feel like we made a good choice using C++ since we didn't have to implement many basic yet time-consuming things on our own such as Lists. Merging all the queues into one class was also advantageous since it allows for more modularity and readable, less, non-repeated code. We learned a lot about job scheduling in a larger environment, as well as the order of which jobs should be moved around and avoiding deadlocks. To improve the program further we could test it on various other types of inputs, such as ones where two jobs arrive at the same time and ones where some jobs are super long and some are super short.
