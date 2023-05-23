@@ -2,6 +2,14 @@
 
 #include "utility/String.h"
 
+/**
+ * Just puts the system info in a long, tidy string
+ * @param currentTime The current system time
+ * @return A multi line string containing the time, available resources, queue contents, and (if the end of the simulation)
+ * the system turnaround.
+ *
+ * NOTE: Queue prints vary between types as different info is relevant between them.
+ */
 std::string System::prettyDisplay(int currentTime) const {
     std::string out;
 

@@ -15,6 +15,9 @@ enum class CommandType {
 
 CommandType charToCommandType(char c);
 
+/*
+the next few structs are used for each command type, holding each parameter in a neat manner for processing
+ */
 struct CommandSystemInfo {
     int memoryAmount;
     int deviceAmount;

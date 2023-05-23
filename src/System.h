@@ -5,7 +5,7 @@
 #include "JobQueue.h"
 
 struct System {
-    int time = -1; // the current time; gets incremented
+    int time = -1; // the current simulation time; gets incremented
     int totalMemory = -1;
     int availableMemory = -1;
     int totalDevices = -1;

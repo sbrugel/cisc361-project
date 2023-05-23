@@ -95,7 +95,7 @@ bool JobQueue::isEmpty() const{
 
 /**
  * A toString function for this queue.
- * @return Prints queue type and the jobs within. (Properties printed vary between queue types)
+ * @return queue type and the jobs within. (Properties printed vary between queue types)
  */
 JobQueue::operator std::string() const {
     std::string out = this->name;
@@ -160,7 +160,7 @@ void JobQueue::sortJobs() { // this sorts all the jobs based on the type of queu
     // Sort based on type
     switch (this->sortType) {
         case JobQueueSortType::FIFO:
-            // sort jobs by arrival (probably not needed?)
+            // sort jobs by arrival
             std::sort(jobs.begin(), jobs.end(), [](Job lhs, Job rhs) {
                 return lhs.arrivalTime < rhs.arrivalTime;
             });
@@ -183,9 +183,8 @@ void JobQueue::sortJobs() { // this sorts all the jobs based on the type of queu
             break;
 
         case JobQueueSortType::RR:
-            // I don't think Round-Robin sort is done here
+            // I don't think Round-Robin sort is done here; do nothing for this and NONE (this case falls down)
         case JobQueueSortType::NONE:
-            // do nothing
             break;
     }
 

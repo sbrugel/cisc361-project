@@ -10,7 +10,9 @@
 
 // Anonymous namespace = TU-local methods
 namespace {
-
+    /**
+     * Prints a help message. Only appears if the file is ran with the -h (or invalid) argument
+     */
 void printHelp() {
     std::cout << "--- CISC361 Term Project ---\n"
                  "Options:\n"
@@ -49,6 +51,12 @@ void printHelp() {
     return nullptr;
 }
 
+/**
+ * Checks if the system will be in a safe state after a device request is granted. Basically runs Banker's algorithm for the request.
+ * @param s The system that will be checked
+ * @param info The device request info (i.e. how many devices are being requested)
+ * @return True if the system is safe, and the request can be granted.
+ */
 [[nodiscard]] bool isSystemSafeAfterDeviceRequest(const System& s, CommandDeviceRequestInfo info) {
     if (s.availableDevices < info.devicesRequested)
         return false;
@@ -68,6 +76,14 @@ void printHelp() {
     return reducedBankers(max, available, s.availableDevices);
 }
 
+/**
+ * Checks if the ready queue is safe if a job is added to the wait queue
+ * @param s The system
+ * @param queue The queue to check
+ * @param j The job to be added
+ * @param totalDevices The number of devices on the system
+ * @return True if safe
+ */
 [[nodiscard]] bool isQueueSafeAfterAddingJob(const System& s, const JobQueue& queue, Job j, int totalDevices) {
     int freeDevices = totalDevices - s.cpuQueue.getTotalDevicesHeld() - queue.getTotalDevicesHeld() - j.devicesHeld;
 
@@ -91,7 +107,7 @@ void printHelp() {
 } // namespace
 
 int main(const int argc, const char* const argv[]) {
-    System s{};
+    System s{}; // initializes a System with all default fields
 
     // reading the input to get all properties
     auto input = getInput(argc, argv);
@@ -112,6 +128,8 @@ int main(const int argc, const char* const argv[]) {
             auto info = std::get<CommandSystemInfo>(command.info);
 
             s = System{};
+
+            // assign command parameters to the System
             s.time = command.time;
             s.totalMemory = info.memoryAmount;
             s.availableMemory = info.memoryAmount;
@@ -132,11 +150,11 @@ int main(const int argc, const char* const argv[]) {
         // Update simulation to latest timestamp
         while (s.time < command.time) {
             s.time += 1;
-            if (!s.waitQueue.isEmpty()){
+            if (!s.waitQueue.isEmpty()){ // there are jobs in the wait queue - look here first
                 auto wQCopy = s.waitQueue;
-                for (auto job : wQCopy){
+                for (auto job : wQCopy){ // loop through all jobs in the wait queue
                     bool safe = isQueueSafeAfterAddingJob(s, s.readyQueue, job, s.totalDevices);
-                    if (safe) {
+                    if (safe) { // can we add this wait queue job to the ready queue?
                         s.readyQueue.push(job);
                         s.availableDevices -= job.devicesHeld;
                         s.waitQueue.remove(job.id);
@@ -146,16 +164,16 @@ int main(const int argc, const char* const argv[]) {
                     }
                 }
             }
-            if (!s.hq1.isEmpty() || !s.hq2.isEmpty()) {
-                if (!s.hq1.isEmpty()) {
-                    Job pushFromHq1 = s.hq1.pop();
-                    if (s.availableMemory >= pushFromHq1.memoryRequired) {
+            if (!s.hq1.isEmpty() || !s.hq2.isEmpty()) { // there are jobs in the hold queue(s)
+                if (!s.hq1.isEmpty()) { // SJF
+                    Job pushFromHq1 = s.hq1.pop(); // get the first job from here (should be the shortest job)
+                    if (s.availableMemory >= pushFromHq1.memoryRequired) { // enough memory to run, just put it in RQ
                         s.readyQueue.push(pushFromHq1);
                         s.availableMemory -= pushFromHq1.memoryRequired;
-                    } else {
+                    } else { // if not, move it to the back of the line
                         s.hq1.push(pushFromHq1);
                     }
-                } else {
+                } else { // FIFO. runs in the same manner
                     Job pushFromHq2 = s.hq2.pop();
                     if (s.availableMemory >= pushFromHq2.memoryRequired) {
                         s.readyQueue.push(pushFromHq2);
@@ -165,29 +183,29 @@ int main(const int argc, const char* const argv[]) {
                     }
                 }
             }
-            if (s.cpuQueue.isEmpty() && !s.readyQueue.isEmpty()) {
+            if (s.cpuQueue.isEmpty() && !s.readyQueue.isEmpty()) { // there are jobs in the RQ, and an open slot for a job to run
                 Job job = s.readyQueue.pop();
                 s.cpuQueue.push(job);
             }
-            if (!s.cpuQueue.isEmpty()) {
+            if (!s.cpuQueue.isEmpty()) { // there is something currently running
                 Job job = s.cpuQueue.peek();
-                if (job.currentTime < job.runningTime && job.quantumLeft < s.quantum) {
+                if (job.currentTime < job.runningTime && job.quantumLeft < s.quantum) { // we can still run the job now
                     job = s.cpuQueue.pop();
                     job.currentTime += 1;
                     job.quantumLeft += 1;
                     s.cpuQueue.push(job);
                 }
-                if (job.quantumLeft == s.quantum && !s.cpuQueue.isEmpty() && job.currentTime != job.runningTime) {
+                if (job.quantumLeft == s.quantum && !s.cpuQueue.isEmpty() && job.currentTime != job.runningTime) { // quantum has run out, but we still need to run the job
                     Job putBack = s.cpuQueue.pop();
                     putBack.quantumLeft = 0;
                     putBack.currentTime = job.currentTime;
                     s.readyQueue.push(putBack);
                 }
-                if (s.cpuQueue.isEmpty() && !s.readyQueue.isEmpty()) {
+                if (s.cpuQueue.isEmpty() && !s.readyQueue.isEmpty()) { // there are jobs in the RQ, and an open slot for a job to run
                     Job j = s.readyQueue.pop();
                     s.cpuQueue.push(j);
                 }
-                if (job.currentTime == job.runningTime && !s.cpuQueue.isEmpty()) {
+                if (job.currentTime == job.runningTime && !s.cpuQueue.isEmpty()) { // this job has just finished
                     Job completeJob = s.cpuQueue.pop();
                     s.availableMemory += completeJob.memoryRequired;
                     s.availableDevices += completeJob.devicesHeld;
@@ -230,17 +248,17 @@ int main(const int argc, const char* const argv[]) {
                 auto info = std::get<CommandDeviceRequestInfo>(command.info);
 
                 Job process = s.cpuQueue.peek();
-                if (!s.cpuQueue.isEmpty()) {
+                if (!s.cpuQueue.isEmpty()) { // this is the job requesting devices. It will only request if it is running
                     process = s.cpuQueue.pop();
                 }
-                bool safe = isSystemSafeAfterDeviceRequest(s, info);
+                bool safe = isSystemSafeAfterDeviceRequest(s, info); // banker's
                 if (safe) {
-                    process.quantumLeft = 0;
+                    process.quantumLeft = 0; // quantum instantly runs out, give it the devices and move it to ready
                     process.devicesHeld += info.devicesRequested;
                     s.availableDevices -= info.devicesRequested;
                     s.readyQueue.push(process);
                 }
-                else {
+                else { // cannot grant devices just yet, it needs to wait
                     process.devicesHeld = info.devicesRequested;
                     s.waitQueue.push(process);
                 }
@@ -248,11 +266,11 @@ int main(const int argc, const char* const argv[]) {
             }
             case CommandType::DEVICE_RELEASE: {
                 auto info = std::get<CommandDeviceReleaseInfo>(command.info);
-                if (!s.cpuQueue.isEmpty()) {
+                if (!s.cpuQueue.isEmpty()) { // the job releasing devices will always be running
                     Job process = s.cpuQueue.pop();
                     process.devicesHeld -= info.devicesReleased;
                     s.availableDevices += info.devicesReleased;
-                    s.readyQueue.push(process);
+                    s.readyQueue.push(process); // move it back to ready
                 }
                 break;
             }

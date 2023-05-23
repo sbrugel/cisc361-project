@@ -1,12 +1,14 @@
 # S23 CISC361 Term Project
 by Simon Brugel, Brendan Lewis, Evan Watson.
 
+For Dr. Mauriello's CISC 361 class. A operating system simulation of job scheduling, resource management, and deadlock avoidance.
+
 ## Building & Running
 
 #### Requirements:
 You need CMake installed, as well as a C++17 compiler.
 
-If you have a working C++ IDE, feel free to use that. If not, run these commands in this directory:
+If you have a working C++ IDE, feel free to use that (we used CLion, so it's pretty much guaranteed to work on that). If not, run these commands in this directory:
 
 `cmake -B build`
 
@@ -14,7 +16,7 @@ If you have a working C++ IDE, feel free to use that. If not, run these commands
 
 `cd build`
 
-`./CISC361-Term-Project <options>`
+`./CISC361-Term-Project <options>` (use whatever this folder is named)
 
 #### Program Options:
 
@@ -31,7 +33,7 @@ We used C++ for this project since it contains a definition for a List ADT, so w
 
 We used a struct to hold all the data for the System, including current time, total/available memory, etc, since it would make organization easier and make our code more readable. There is also a Job struct used for a similar purpose.
 
-All of the queue types - hold, ready, wait, and complete - are bundled into one class, JobQueue. Each queue is given a sort type and a name (for printing). Jobs are stored in this class in a Queue, which has peek, push, clear, and pop functions. 
+All the queue types - hold, ready, wait, and complete - are bundled into one class, JobQueue. Each queue is given a sort type and a name (for printing). Jobs are stored in this class in a Queue, which has peek, push, clear, and pop functions. 
 There is also a sort function which sorts the jobs in the queue, based on the sorting type:
 
 `FIFO` - Sort jobs by when they arrived
@@ -42,8 +44,9 @@ There is also a sort function which sorts the jobs in the queue, based on the so
 
 *(All functions in JobQueue.cpp are documented)*
 
-As for running the program, we open up the input file (located in ROOT/inputs) and read the lines one by one. Every time we read a line, we get its command type, and its arrival time. 
-Then we simulate the system up to that point, managing the queues as needed. Then we actually read in the command.
+As for running the program, we open up the input file supplied in the command and read the lines one by one. Every time we read a line, we get its command type, and its arrival time. 
+Firstly we read in the first `C` command, then we simulate the system up to the time of each command, managing the queues as needed (order is wait->ready, hold->ready, ready->running, running->running, running->ready, running->wait (i.e. for Bankers), running->complete). 
+Then we read in and process other types of commands that aren't system related.
 
 `C` - Wipes the system data and initializes a new system using the given fields
 
@@ -55,17 +58,23 @@ Then we simulate the system up to that point, managing the queues as needed. The
 
 `D` - Displays all system data, including available resources, jobs in every queue, and turnaround times.
  
- Finally we have a Commands source and header file used for parsing commands and their properties easier. This uses a custom series of String utilities to make parsing a lot easier.
+We have a Commands source and header file used for parsing commands and their properties easier. This uses a custom series of String utilities to make parsing a lot easier.
 
 ## Output
+The following images are our console output for each sample input file.
+
 ### i0/o0
-// TODO
+![img](https://i.imgur.com/q7Nzupi.png)
 
 ### i1/o1
-// TODO
+![img](https://i.imgur.com/J4ejt9f.png)
+![img](https://i.imgur.com/xyMAn55.png)
+![img](https://i.imgur.com/O6zdT4Q.png)
+![img](https://i.imgur.com/W75ENuR.png)
+![img](https://i.imgur.com/3DKRWna.png)
 
 ### i2/o2
-// TODO
+![img](https://i.imgur.com/PFOrdYY.png)
 
 ## Reflection
 I feel like we made a good choice using C++ since we didn't have to implement many basic yet time-consuming things on our own such as Lists. Merging all the queues into one class was also advantageous since it
