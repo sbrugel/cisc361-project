@@ -30,6 +30,10 @@ JobQueue::JobQueue(JobQueueSortType jobQueueSortType, std::string_view name_)
     return dev;
 }
 
+/**
+ * Gets the # of devices held by every Job in the queue.
+ * @returns An integer, representing the total devices held.
+ */
 [[nodiscard]] int JobQueue::getTotalDevicesHeld() const {
     int dev = 0;
     for (auto job : this->queue) {
